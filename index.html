@@ -350,23 +350,34 @@ function drawCocktail(glass,color,garnish,size){
   // Helper: draw espresso foam + 3 beans inside a clipped area
   function espressoFoam(clipId,foamX,foamY,foamW,foamH){
     var html='';
-    // Cream/tan foam layer
-    html+='<rect x="'+foamX+'" y="'+foamY+'" width="'+foamW+'" height="'+foamH+'" fill="rgba(190,138,82,0.62)" clip-path="url(#'+clipId+')"/>';
-    // Subtle foam texture streak
-    html+='<line x1="'+(foamX+foamW*0.2)+'" y1="'+(foamY+foamH*0.55)+'" x2="'+(foamX+foamW*0.75)+'" y2="'+(foamY+foamH*0.45)+'" stroke="rgba(220,170,110,0.45)" stroke-width="'+(foamH*0.18)+'" stroke-linecap="round"/>';
-    // 3 espresso beans on foam
-    var bY=foamY+foamH*0.5;
-    var bRx=3.5*sc,bRy=5*sc;
-    var offsets=[-10*sc,0,10*sc];
+    // Base crema layer — warm amber-tan
+    html+='<rect x="'+foamX+'" y="'+foamY+'" width="'+foamW+'" height="'+foamH+'" fill="rgba(178,118,55,0.82)" clip-path="url(#'+clipId+')"/>';
+    // Darker crema ring at edges for depth
+    html+='<rect x="'+foamX+'" y="'+foamY+'" width="'+foamW+'" height="'+foamH+'" fill="rgba(95,50,15,0.22)" clip-path="url(#'+clipId+')"/>';
+    // Bright center highlight — the classic crema glow
+    html+='<ellipse cx="'+(foamX+foamW*0.5)+'" cy="'+(foamY+foamH*0.42)+'" rx="'+(foamW*0.26)+'" ry="'+(foamH*0.38)+'" fill="rgba(235,195,130,0.48)" clip-path="url(#'+clipId+')"/>';
+    // Subtle crema swirl streaks
+    html+='<line x1="'+(foamX+foamW*0.12)+'" y1="'+(foamY+foamH*0.62)+'" x2="'+(foamX+foamW*0.68)+'" y2="'+(foamY+foamH*0.38)+'" stroke="rgba(230,178,105,0.35)" stroke-width="'+(foamH*0.16)+'" stroke-linecap="round"/>';
+    html+='<line x1="'+(foamX+foamW*0.35)+'" y1="'+(foamY+foamH*0.78)+'" x2="'+(foamX+foamW*0.72)+'" y2="'+(foamY+foamH*0.22)+'" stroke="rgba(115,62,18,0.15)" stroke-width="'+(foamH*0.1)+'" stroke-linecap="round"/>';
+    // Foam surface sheen line at top edge
+    html+='<line x1="'+(foamX+foamW*0.08)+'" y1="'+(foamY+foamH*0.14)+'" x2="'+(foamX+foamW*0.58)+'" y2="'+(foamY+foamH*0.1)+'" stroke="rgba(255,230,175,0.38)" stroke-width="'+(0.7*sc)+'" stroke-linecap="round"/>';
+    // 3 espresso beans — classic triangle arrangement on foam
+    var bY=foamY+foamH*0.52;
+    var bRx=3.8*sc,bRy=5.5*sc;
+    var offsets=[-11*sc,0,11*sc];
     for(var bi=0;bi<3;bi++){
       var bx=cx+offsets[bi];
-      html+='<ellipse cx="'+bx+'" cy="'+bY+'" rx="'+bRx+'" ry="'+bRy+'" fill="#1c0c06" stroke="#301008" stroke-width="'+(0.55*sc)+'" clip-path="url(#'+clipId+')" />';
-      html+='<line x1="'+bx+'" y1="'+(bY-bRy)+'" x2="'+bx+'" y2="'+(bY+bRy)+'" stroke="rgba(48,20,8,0.65)" stroke-width="'+(0.38*sc)+'" />';
+      html+='<ellipse cx="'+bx+'" cy="'+bY+'" rx="'+bRx+'" ry="'+bRy+'" fill="#1a0b05" stroke="rgba(55,22,8,0.7)" stroke-width="'+(0.6*sc)+'" clip-path="url(#'+clipId+')" />';
+      html+='<line x1="'+bx+'" y1="'+(bY-bRy*0.85)+'" x2="'+bx+'" y2="'+(bY+bRy*0.85)+'" stroke="rgba(55,22,8,0.55)" stroke-width="'+(0.4*sc)+'" />';
+      // tiny sheen on each bean
+      html+='<ellipse cx="'+(bx-bRx*0.3)+'" cy="'+(bY-bRy*0.35)+'" rx="'+(bRx*0.35)+'" ry="'+(bRy*0.22)+'" fill="rgba(80,40,16,0.45)" clip-path="url(#'+clipId+')" />';
     }
     return html;
   }
   if(g==='coupe'){
-    var rimW=33*sc,rimY=cy-44*sc,bowlBotY=cy+12*sc,liqY=cy-8*sc;
+    var rimW=33*sc,rimY=cy-44*sc,bowlBotY=cy+12*sc;
+    // Espresso drinks: fill nearly to the brim (6*sc below rim) so foam sits just inside glass
+    var liqY=gn==='espresso beans'?cy-37*sc:cy-8*sc;
     var bellyW=50*sc;
     var clipId='cl'+uid;
     // Nick & Nora shape: belly wider than rim, curves inward to narrow mouth
@@ -376,7 +387,8 @@ function drawCocktail(glass,color,garnish,size){
     glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId+')"/>';
     glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh2'+uid+')" clip-path="url(#'+clipId+')"/>';
     if(gn==='espresso beans'){
-      var foamH=(bowlBotY-liqY)*0.3;
+      // Fixed foam height — looks like ~8mm of crema on a real espresso martini
+      var foamH=10*sc;
       glassHTML+=espressoFoam(clipId,cx-bellyW-4*sc,liqY,bellyW*2+8*sc,foamH);
     }
     glassHTML+='<path d="'+bowlPath+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linecap="round"/>';
