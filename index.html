@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wink of the Rabbit — Carl's Cocktail Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1e2419;--bg2:#252d1f;--bg3:#2c3522;--surf:#3a4630;--yell:#d4d318;--coral:#c65038;--cream:#f0e4cc;--dim:#9a9272;--white:#f8f0e0;--sw:272px;--r:10px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.25}
+#sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid rgba(212,211,24,.1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.sb-logo{padding:24px 22px 16px;border-bottom:1px solid rgba(212,211,24,.07);cursor:pointer;display:flex;align-items:center;gap:12px}
+.sb-logo img{width:46px;height:46px;object-fit:contain;filter:invert(1) sepia(.3) saturate(.5) brightness(1.4);mix-blend-mode:screen;flex-shrink:0;transition:opacity .2s}
+.sb-logo:hover img{opacity:.9}
+.brand-text{display:flex;flex-direction:column;gap:2px}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;font-style:italic;color:var(--yell);letter-spacing:.02em;line-height:1.1}
+.brand-sub{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-lbl{font-size:7.5px;letter-spacing:.26em;text-transform:uppercase;color:rgba(212,211,24,.32);padding:0 20px;margin:14px 0 4px}
+nav a{display:flex;align-items:center;gap:9px;padding:7px 20px;text-decoration:none;color:var(--dim);font-size:12px;letter-spacing:.03em;border-left:2px solid transparent;transition:all .15s;cursor:pointer;font-weight:300}
+nav a:hover{color:var(--cream);background:rgba(212,211,24,.04)}
+nav a.active{color:var(--yell);border-left-color:var(--yell);background:rgba(212,211,24,.06)}
+nav a .ic{font-size:11px;opacity:.55;width:14px;text-align:center;flex-shrink:0}
+.sb-foot{padding:12px 20px;border-top:1px solid rgba(212,211,24,.07);display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--dim)}
+#admin-btn{font-size:9px;color:var(--dim);background:none;border:1px solid rgba(212,211,24,.16);padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:.07em;transition:all .16s}
+#admin-btn:hover{border-color:var(--yell);color:var(--yell)}
+#main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
+#topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-bottom:1px solid rgba(212,211,24,.08);position:sticky;top:0;z-index:90;gap:10px}
+#burger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;flex-shrink:0}
+#burger span{display:block;width:21px;height:1.5px;background:var(--cream);transition:all .3s}
+.topbar-brand{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.topbar-brand img{width:26px;height:26px;object-fit:contain;filter:invert(1) sepia(.3) saturate(.5) brightness(1.4);mix-blend-mode:screen}
+.topbar-brand span{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--yell);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-wrap{padding:0 52px;margin-bottom:0}
+.search-box{position:relative;max-width:480px}
+.search-box input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(212,211,24,.14);border-radius:7px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;padding:10px 36px 10px 14px;outline:none;transition:border-color .16s}
+.search-box input:focus{border-color:rgba(212,211,24,.36)}
+.search-box input::placeholder{color:var(--dim);font-style:italic}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 4px;display:none}
+.search-clear.show{display:block}
+#hero{position:relative;padding:56px 52px 40px;overflow:hidden;border-bottom:1px solid rgba(212,211,24,.07)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 70% 50%,rgba(198,80,56,.08) 0%,transparent 65%),radial-gradient(ellipse 45% 65% at 10% 30%,rgba(212,211,24,.04) 0%,transparent 55%);pointer-events:none}
+.hero-rel{position:relative}
+.hero-eye{font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--yell);margin-bottom:10px;opacity:.8}
+#hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,5vw,74px);font-weight:300;font-style:italic;color:var(--white);line-height:1.05;margin-bottom:12px}
+#hero h1 em{font-style:normal;color:var(--yell)}
+.hero-rule{width:32px;height:1px;background:var(--coral);margin:16px 0;opacity:.55}
+.hero-sub{font-size:13px;color:var(--dim);max-width:400px;line-height:1.8;font-weight:300}
+.pg{padding:36px 52px 0}
+.pg .eye{font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:var(--yell);margin-bottom:4px;opacity:.8}
+.pg h2{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:var(--white);line-height:1.1}
+.pg p{font-size:12px;color:var(--dim);margin-top:6px;max-width:460px;line-height:1.75}
+#content{padding:22px 52px 80px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.card{background:var(--bg3);border:1px solid rgba(212,211,24,.08);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1),border-color .22s,box-shadow .22s}
+.card:hover{transform:translateY(-3px);border-color:rgba(212,211,24,.22);box-shadow:0 10px 36px rgba(0,0,0,.45)}
+.card-img{width:100%;height:176px;background:#f4ede3;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.card-img svg{width:100%;height:100%}
+.card-body{padding:13px 15px 15px}
+.card-cat{font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--yell);margin-bottom:4px;opacity:.8}
+.card-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:400;color:var(--white);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:11px;color:var(--dim);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:8.5px;letter-spacing:.04em;padding:2px 7px;border-radius:20px;border:1px solid rgba(212,211,24,.14);color:var(--dim);transition:all .14s;cursor:pointer}
+.tag:hover{border-color:var(--yell);color:var(--yell);background:rgba(212,211,24,.06)}
+#modal-bg{position:fixed;inset:0;background:rgba(10,14,8,.88);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+#modal-bg.open{display:flex}
+#modal{background:var(--bg2);border:1px solid rgba(212,211,24,.14);border-radius:13px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto;position:relative;animation:mIn .26s cubic-bezier(.4,0,.2,1)}
+@keyframes mIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.m-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:var(--cream);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:2}
+.m-close:hover{background:rgba(255,255,255,.12)}
+.m-img{width:100%;height:240px;background:#f4ede3;border-radius:11px 11px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.m-img svg{width:100%;height:100%}
+.m-body{padding:24px 26px 28px}
+.m-cat{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--yell);margin-bottom:4px;opacity:.8}
+.m-name{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--white);line-height:1.05;margin-bottom:4px}
+.m-origin{font-size:10px;color:var(--coral);margin-bottom:8px;font-style:italic;display:none}
+.m-origin.show{display:block}
+.m-div{height:1px;background:rgba(212,211,24,.08);margin:14px 0}
+.m-sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(212,211,24,.6);margin-bottom:8px}
+.ing-list{list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.ing-list li{display:flex;justify-content:space-between;font-size:12px;color:var(--cream);padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ing-list li .amt{color:var(--yell);font-weight:400;font-size:11.5px}
+.m-method{font-size:12px;color:var(--dim);line-height:1.8}
+.m-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
+.m-profile{margin-top:0}
+.profile-meter{margin-bottom:16px}
+.meter-row{display:flex;justify-content:space-between;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.meter-track{position:relative;height:1px;background:rgba(255,255,255,.1);border-radius:1px;margin-bottom:5px}
+.meter-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:var(--cream);border:1.5px solid var(--yell);box-shadow:0 0 6px rgba(212,211,24,.35)}
+.meter-ticks{display:flex;justify-content:space-between}
+.meter-ticks span{font-size:7px;color:rgba(255,255,255,.18);font-family:'DM Sans',sans-serif}
+#admin-panel{display:none;padding:38px 52px 80px;animation:fadeIn .26s ease}
+#admin-panel.open{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.adm-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid rgba(212,211,24,.09)}
+.adm-hd h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;color:var(--white)}
+.btn{padding:8px 16px;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:all .15s;border:none}
+.btn-y{background:var(--yell);color:#1a1a0a;font-weight:500}
+.btn-y:hover{background:#dede28}
+.btn-o{background:transparent;border:1px solid rgba(212,211,24,.28);color:var(--yell)}
+.btn-o:hover{border-color:var(--yell);background:rgba(212,211,24,.06)}
+.btn-d{background:transparent;border:1px solid rgba(200,65,45,.35);color:#c87060}
+.btn-d:hover{background:rgba(200,65,45,.08)}
+.adm-list{display:flex;flex-direction:column;gap:8px}
+.adm-item{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid rgba(212,211,24,.07);border-radius:9px;padding:12px 14px}
+.adm-thumb{width:46px;height:46px;background:#f4ede3;border-radius:7px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.adm-thumb svg{width:100%;height:100%}
+.adm-info{flex:1}
+.adm-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--white);margin-bottom:2px}
+.adm-cat{font-size:9px;color:var(--yell);letter-spacing:.08em}
+.adm-acts{display:flex;gap:6px;flex-shrink:0}
+#cocktail-form{display:none;background:var(--bg3);border:1px solid rgba(212,211,24,.1);border-radius:10px;padding:24px;margin-bottom:22px;animation:fadeIn .26s ease}
+#cocktail-form.open{display:block}
+.f-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--white);margin-bottom:16px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
+.fgrp{display:flex;flex-direction:column;gap:4px}
+.fgrp.full{grid-column:1/-1}
+label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(212,211,24,.45)}
+input,select,textarea{background:rgba(255,255,255,.04);border:1px solid rgba(212,211,24,.14);border-radius:5px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;padding:7px 10px;outline:none;transition:border-color .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:rgba(212,211,24,.38)}
+select option{background:var(--bg2);color:var(--cream)}
+textarea{resize:vertical;min-height:70px}
+.fa{display:flex;gap:8px;margin-top:14px}
+#admin-login{display:none;position:fixed;inset:0;background:rgba(8,12,6,.92);backdrop-filter:blur(10px);z-index:600;align-items:center;justify-content:center}
+#admin-login.open{display:flex}
+.login-box{background:var(--bg2);border:1px solid rgba(212,211,24,.14);border-radius:13px;padding:40px 34px;width:100%;max-width:340px;text-align:center}
+.login-box img{width:48px;height:48px;object-fit:contain;filter:invert(1) sepia(.3) saturate(.5) brightness(1.4);mix-blend-mode:screen;margin-bottom:14px}
+.login-box h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--yell);margin-bottom:4px}
+.login-box p{font-size:11px;color:var(--dim);margin-bottom:20px}
+.login-box input{margin-bottom:8px;text-align:center;letter-spacing:.16em}
+.login-box .btn{width:100%}
+.login-err{color:#c07060;font-size:11px;margin-top:6px;display:none}
+.login-err.show{display:block}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+#overlay.open{display:block}
+.empty{text-align:center;padding:60px 20px;color:var(--dim);grid-column:1/-1}
+.empty .ico{font-size:38px;margin-bottom:10px;opacity:.28}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(212,211,24,.14);border-radius:4px}
+@media(max-width:768px){
+  :root{--sw:0px}
+  #sidebar{width:272px;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0);box-shadow:8px 0 40px rgba(0,0,0,.6)}
+  #main{margin-left:0}
+  #topbar{display:flex}
+  #hero{padding:30px 16px 28px}
+  .pg{padding:24px 16px 0}
+  #content{padding:16px 16px 60px}
+  .search-wrap{padding:0 16px;margin-top:12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .card-img{height:148px}
+  .card-name{font-size:15px}
+  #admin-panel{padding:24px 16px 60px}
+  #modal{border-radius:10px}
+  .m-img{height:200px}
+  .m-body{padding:18px 18px 22px}
+  .m-name{font-size:26px}
+  .fg{grid-template-columns:1fr}
+}
+@media(max-width:420px){
+  .grid{grid-template-columns:1fr 1fr}
+  .card-img{height:130px}
+}
+</style>
+</head>
+<body>
+<div id="admin-login">
+  <div class="login-box">
+    <img src="Brand Assets/Logo.png" alt="">
+    <h3>Admin</h3>
+    <p>Password required to manage the menu</p>
+    <input type="password" id="admin-pw" placeholder="Password" autocomplete="off">
+    <button class="btn btn-y" id="login-btn">Enter</button>
+    <div class="login-err" id="login-err">Wrong password.</div>
+    <button style="margin-top:11px;background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer" onclick="closeLogin()">Cancel</button>
+  </div>
+</div>
+<aside id="sidebar">
+  <div class="sb-logo" id="sb-logo">
+    <img src="Brand Assets/Logo.png" alt="Wink of the Rabbit">
+    <div class="brand-text">
+      <div class="brand-name">Wink of the Rabbit</div>
+      <div class="brand-sub">Carl's Cocktail Library</div>
+    </div>
+  </div>
+  <nav id="nav">
+    <div class="nav-lbl">Menu</div>
+    <a onclick="showCat('all')" class="active"><span class="ic">&#9685;</span>All Drinks</a>
+    <a onclick="showCat('favorites')"><span class="ic">&#9733;</span>House Favorites</a>
+    <a onclick="showCat('dry')"><span class="ic">&#9671;</span>Dry</a>
+    <a onclick="showCat('sweet')"><span class="ic">&#9670;</span>Sweet</a>
+    <a onclick="showCat('chartreuse')"><span class="ic">&#10022;</span>Chartreuse</a>
+    <a onclick="showCat('espresso')"><span class="ic">&#9749;</span>Espresso</a>
+    <a onclick="showCat('lastriffs')"><span class="ic">&#8635;</span>Last Riffs</a>
+    <div class="nav-lbl">By Spirit</div>
+    <a onclick="showCat('bitters')"><span class="ic">&middot;</span>Bitters</a>
+    <a onclick="showCat('bourbon')"><span class="ic">&middot;</span>Bourbon</a>
+    <a onclick="showCat('cognac')"><span class="ic">&middot;</span>Cognac &amp; Pisco</a>
+    <a onclick="showCat('gin')"><span class="ic">&middot;</span>Gin</a>
+    <a onclick="showCat('liqueurs')"><span class="ic">&middot;</span>Liqueurs</a>
+    <a onclick="showCat('mezcal')"><span class="ic">&middot;</span>Mezcal</a>
+    <a onclick="showCat('rum')"><span class="ic">&middot;</span>Rum</a>
+    <a onclick="showCat('tequila')"><span class="ic">&middot;</span>Tequila</a>
+    <a onclick="showCat('whiskey')"><span class="ic">&middot;</span>Whiskey</a>
+  </nav>
+  <div class="sb-foot"><span>Est. at home</span><button id="admin-btn" onclick="openLogin()">Admin</button></div>
+</aside>
+<div id="overlay" onclick="closeSb()"></div>
+<main id="main">
+  <div id="topbar">
+    <button id="burger" onclick="toggleSb()"><span></span><span></span><span></span></button>
+    <div class="topbar-brand">
+      <img src="Brand Assets/Logo.png" alt="">
+      <span>Wink of the Rabbit</span>
+    </div>
+  </div>
+  <div id="view-menu">
+    <div id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-rel">
+        <div class="hero-eye">Welcome to the bar</div>
+        <h1>Crafted with<br><em>intention.</em></h1>
+        <div class="hero-rule"></div>
+        <p class="hero-sub">Browse the menu, pick your poison. I'll handle everything else.</p>
+      </div>
+    </div>
+    <div class="pg">
+      <div class="eye" id="cat-eye"></div>
+      <h2 id="cat-title"></h2>
+      <p id="cat-desc"></p>
+    </div>
+    <div class="search-wrap" style="margin-top:18px">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search cocktails..." autocomplete="off">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()">&#x2715;</button>
+      </div>
+    </div>
+    <div id="content"><div class="grid" id="grid"></div></div>
+  </div>
+  <div id="admin-panel">
+    <div class="adm-hd">
+      <h2>Manage Cocktails</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-y" onclick="showForm(null)">+ Add Cocktail</button>
+        <button class="btn btn-o" onclick="closeAdmin()">Back to Menu</button>
+      </div>
+    </div>
+    <div id="cocktail-form">
+      <div class="f-title" id="f-title-lbl">New Cocktail</div>
+      <input type="hidden" id="edit-id">
+      <div class="fg">
+        <div class="fgrp"><label>Name</label><input type="text" id="f-name" placeholder="The Wink"></div>
+        <div class="fgrp"><label>Category</label>
+          <select id="f-cat">
+            <option value="favorites">House Favorites</option><option value="dry">Dry</option><option value="sweet">Sweet</option>
+            <option value="chartreuse">Chartreuse</option><option value="espresso">Espresso</option><option value="lastriffs">Last Riffs</option>
+            <option value="bitters">Bitters</option><option value="bourbon">Bourbon</option><option value="cognac">Cognac / Pisco</option>
+            <option value="gin">Gin</option><option value="liqueurs">Liqueurs</option><option value="mezcal">Mezcal</option>
+            <option value="rum">Rum</option><option value="tequila">Tequila</option><option value="whiskey">Whiskey</option>
+          </select>
+        </div>
+        <div class="fgrp full"><label>Origin / Description</label><textarea id="f-desc" placeholder="Created by..."></textarea></div>
+        <div class="fgrp full"><label>Ingredients (one per line or comma-separated: "2 oz Gin")</label><textarea id="f-ing" placeholder="2 oz Gin&#10;3/4 oz Lime&#10;1/2 oz Simple Syrup"></textarea></div>
+        <div class="fgrp full"><label>Method</label><textarea id="f-method" placeholder="Shake all ingredients with ice..."></textarea></div>
+        <div class="fgrp"><label>Tags (comma separated)</label><input type="text" id="f-tags" placeholder="Dry, Gin, Citrus"></div>
+        <div class="fgrp"><label>Glass Style</label>
+          <select id="f-glass">
+            <option value="coupe">Coupe / Nick &amp; Nora</option><option value="rocks">Rocks / Old Fashioned</option>
+            <option value="highball">Highball / Collins</option><option value="martini">Martini</option><option value="shot">Shot / Cordial</option>
+          </select>
+        </div>
+        <div class="fgrp"><label>Liquid Color (hex)</label><input type="color" id="f-color" value="#c9a84c" style="height:38px;padding:3px 6px;cursor:pointer"></div>
+        <div class="fgrp"><label>Garnish</label>
+          <select id="f-garnish">
+            <option value="none">None</option><option value="lemon twist">Lemon Twist</option><option value="lime wheel">Lime Wheel</option>
+            <option value="orange twist">Orange Twist</option><option value="cherry">Cherry</option><option value="mint sprig">Mint Sprig</option>
+            <option value="espresso beans">Espresso Beans</option><option value="rose petal">Rose Petal</option><option value="grapefruit">Grapefruit</option>
+          </select>
+        </div>
+      </div>
+      <div class="fa"><button class="btn btn-y" id="save-btn">Save Cocktail</button><button class="btn btn-o" onclick="hideForm()">Cancel</button></div>
+    </div>
+    <div class="adm-list" id="adm-list"></div>
+  </div>
+</main>
+<div id="modal-bg">
+  <div id="modal">
+    <button class="m-close" onclick="closeM()">&#x2715;</button>
+    <div class="m-img" id="m-img"></div>
+    <div class="m-body">
+      <div class="m-cat" id="m-cat"></div>
+      <div class="m-name" id="m-name"></div>
+      <div class="m-origin" id="m-origin"></div>
+      <div class="m-div"></div>
+      <div class="m-sec">Ingredients</div>
+      <ul class="ing-list" id="m-ing"></ul>
+      <div class="m-sec">Method</div>
+      <div class="m-method" id="m-method"></div>
+      <div class="m-div"></div>
+      <div class="m-sec">Flavor Profile</div>
+      <div class="m-profile" id="m-profile"></div>
+      <div class="m-tags" id="m-tags"></div>
+    </div>
+  </div>
+</div>
+<script>
+let _uid=0;
+function drawCocktail(glass,color,garnish,size){
+  size=size||200;const uid=++_uid;const c=color||'#c9a84c';const g=glass||'coupe';
+  const sc=size/200;const cx=size/2,cy=size/2;
+  const ink='#2a2620';const lw=1.3*sc;
+  const gn=garnish||'none';
+  // Adaptive fill opacity: dark drinks (espresso) need higher opacity or they go grey on cream bg
+  function lumv(h){var r=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(r+gv+b)/765;}
+  var lv=lumv(c);
+  var fillOp=lv<0.12?0.82:lv<0.22?0.68:lv<0.4?0.58:0.52;
+  function rgba(h,op){var r=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return 'rgba('+r+','+gv+','+b+','+op+')';}
+  var defs='<defs>'
+    +'<pattern id="xh'+uid+'" patternUnits="userSpaceOnUse" width="7" height="7">'
+    +'<line x1="0" y1="7" x2="7" y2="0" stroke="'+ink+'" stroke-width="0.45" opacity="0.18"/>'
+    +'</pattern>'
+    +'<pattern id="xh2'+uid+'" patternUnits="userSpaceOnUse" width="9" height="9">'
+    +'<line x1="0" y1="0" x2="9" y2="9" stroke="'+ink+'" stroke-width="0.3" opacity="0.1"/>'
+    +'</pattern>'
+    +'<filter id="sk'+uid+'">'
+    +'<feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" result="noise"/>'
+    +'<feDisplacementMap in="SourceGraphic" in2="noise" scale="'+(1.8*sc)+'" xChannelSelector="R" yChannelSelector="G"/>'
+    +'</filter>'
+    +'</defs>';
+  var bg='<rect width="'+size+'" height="'+size+'" fill="#f4ede3"/>';
+  var glassHTML='',garnishHTML='';
+  // Helper: draw espresso foam + 3 beans inside a clipped area
+  function espressoFoam(clipId,foamX,foamY,foamW,foamH){
+    var html='';
+    // Cream/tan foam layer
+    html+='<rect x="'+foamX+'" y="'+foamY+'" width="'+foamW+'" height="'+foamH+'" fill="rgba(190,138,82,0.62)" clip-path="url(#'+clipId+')"/>';
+    // Subtle foam texture streak
+    html+='<line x1="'+(foamX+foamW*0.2)+'" y1="'+(foamY+foamH*0.55)+'" x2="'+(foamX+foamW*0.75)+'" y2="'+(foamY+foamH*0.45)+'" stroke="rgba(220,170,110,0.45)" stroke-width="'+(foamH*0.18)+'" stroke-linecap="round"/>';
+    // 3 espresso beans on foam
+    var bY=foamY+foamH*0.5;
+    var bRx=3.5*sc,bRy=5*sc;
+    var offsets=[-10*sc,0,10*sc];
+    for(var bi=0;bi<3;bi++){
+      var bx=cx+offsets[bi];
+      html+='<ellipse cx="'+bx+'" cy="'+bY+'" rx="'+bRx+'" ry="'+bRy+'" fill="#1c0c06" stroke="#301008" stroke-width="'+(0.55*sc)+'" clip-path="url(#'+clipId+')" />';
+      html+='<line x1="'+bx+'" y1="'+(bY-bRy)+'" x2="'+bx+'" y2="'+(bY+bRy)+'" stroke="rgba(48,20,8,0.65)" stroke-width="'+(0.38*sc)+'" />';
+    }
+    return html;
+  }
+  if(g==='coupe'){
+    var rimW=50*sc,rimY=cy-34*sc,bowlBotY=cy+16*sc,liqY=cy-2*sc;
+    var clipId='cl'+uid;
+    var bowlPath='M'+(cx-rimW)+','+rimY+' C'+(cx-rimW-4*sc)+','+(rimY+26*sc)+' '+(cx-9*sc)+','+(bowlBotY-4*sc)+' '+cx+','+bowlBotY+' C'+(cx+9*sc)+','+(bowlBotY-4*sc)+' '+(cx+rimW+4*sc)+','+(rimY+26*sc)+' '+(cx+rimW)+','+rimY;
+    glassHTML+='<clipPath id="'+clipId+'"><path d="'+bowlPath+' Z"/></clipPath>';
+    glassHTML+='<rect x="'+(cx-rimW-4*sc)+'" y="'+liqY+'" width="'+(rimW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId+')"/>';
+    glassHTML+='<rect x="'+(cx-rimW-4*sc)+'" y="'+liqY+'" width="'+(rimW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId+')"/>';
+    glassHTML+='<rect x="'+(cx-rimW-4*sc)+'" y="'+liqY+'" width="'+(rimW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh2'+uid+')" clip-path="url(#'+clipId+')"/>';
+    if(gn==='espresso beans'){
+      var foamH=(bowlBotY-liqY)*0.3;
+      glassHTML+=espressoFoam(clipId,cx-rimW-4*sc,liqY,rimW*2+8*sc,foamH);
+    }
+    glassHTML+='<path d="'+bowlPath+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(cx-rimW)+'" y1="'+rimY+'" x2="'+(cx+rimW)+'" y2="'+rimY+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
+    glassHTML+='<path d="M'+(cx-rimW*0.55)+','+(rimY+8*sc)+' Q'+(cx-rimW*0.4)+','+(rimY+22*sc)+' '+(cx-rimW*0.22)+','+(bowlBotY-8*sc)+'" stroke="rgba(255,255,255,0.45)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>';
+    var stemBotY=cy+56*sc;
+    glassHTML+='<line x1="'+cx+'" y1="'+bowlBotY+'" x2="'+cx+'" y2="'+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<path d="M'+(cx-20*sc)+','+stemBotY+' Q'+cx+','+(stemBotY+3*sc)+' '+(cx+20*sc)+','+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
+  } else if(g==='rocks'){
+    var tw=56*sc,th=56*sc,tx=cx-tw/2,ty=cy-th/2+4*sc,liqY2=ty+th*0.32;
+    var clipId2='cl'+uid;
+    var outline='M'+(tx+3*sc)+','+ty+' L'+(tx+tw-3*sc)+','+ty+' L'+(tx+tw+2*sc)+','+(ty+th)+' L'+(tx-2*sc)+','+(ty+th)+' Z';
+    glassHTML+='<clipPath id="'+clipId2+'"><path d="'+outline+'"/></clipPath>';
+    glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId2+')"/>';
+    glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId2+')"/>';
+    if(gn==='espresso beans'){
+      var foamH3=th*0.2;
+      glassHTML+=espressoFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,foamH3);
+    } else {
+      var iceX=cx-10*sc,iceY=liqY2+5*sc,iceSz=14*sc;
+      glassHTML+='<rect x="'+iceX+'" y="'+iceY+'" width="'+iceSz+'" height="'+iceSz+'" rx="'+(1.5*sc)+'" fill="rgba(200,225,255,0.22)" stroke="rgba(200,225,255,0.5)" stroke-width="'+(0.7*sc)+'"/>';
+    }
+    glassHTML+='<path d="'+outline+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round"/>';
+    glassHTML+='<line x1="'+(tx+3*sc)+'" y1="'+ty+'" x2="'+(tx+tw-3*sc)+'" y2="'+ty+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
+    glassHTML+='<line x1="'+(tx+8*sc)+'" y1="'+(ty+4*sc)+'" x2="'+(tx+8*sc)+'" y2="'+(ty+th-7*sc)+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
+  } else if(g==='highball'){
+    var twH=38*sc,thH=80*sc,txH=cx-twH/2,tyH=cy-thH/2-2*sc,liqYH=tyH+thH*0.22;
+    var clipIdH='cl'+uid;
+    glassHTML+='<clipPath id="'+clipIdH+'"><rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'"/></clipPath>';
+    glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdH+')"/>';
+    glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdH+')"/>';
+    if(gn==='espresso beans'){
+      var foamH4=thH*0.14;
+      glassHTML+=espressoFoam(clipIdH,txH,liqYH,twH,foamH4);
+    }
+    glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'"/>';
+    glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+tyH+'" x2="'+(txH+twH-2*sc)+'" y2="'+tyH+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
+    if(gn!=='espresso beans'){
+      glassHTML+='<line x1="'+(cx+10*sc)+'" y1="'+(tyH-10*sc)+'" x2="'+(cx+13*sc)+'" y2="'+(tyH+thH-5*sc)+'" stroke="#c8c018" stroke-width="'+(2.2*sc)+'" stroke-linecap="round" opacity="0.7"/>';
+    }
+    glassHTML+='<line x1="'+(txH+7*sc)+'" y1="'+(tyH+4*sc)+'" x2="'+(txH+7*sc)+'" y2="'+(tyH+thH-8*sc)+'" stroke="rgba(255,255,255,0.26)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
+  } else if(g==='martini'){
+    var rimWM=46*sc,rimYM=cy-30*sc,botYM=cy+18*sc,liqYM=cy+4*sc;
+    var clipIdM='cl'+uid;
+    glassHTML+='<clipPath id="'+clipIdM+'"><path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+' Z"/></clipPath>';
+    glassHTML+='<rect x="'+(cx-rimWM-2*sc)+'" y="'+liqYM+'" width="'+(rimWM*2+4*sc)+'" height="'+(botYM-liqYM+2*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdM+')"/>';
+    glassHTML+='<rect x="'+(cx-rimWM-2*sc)+'" y="'+liqYM+'" width="'+(rimWM*2+4*sc)+'" height="'+(botYM-liqYM+2*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdM+')"/>';
+    glassHTML+='<path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(cx-rimWM)+'" y1="'+rimYM+'" x2="'+(cx+rimWM)+'" y2="'+rimYM+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
+    glassHTML+='<path d="M'+(cx-rimWM*0.62)+','+(rimYM+5*sc)+' L'+(cx-rimWM*0.35)+','+(rimYM+22*sc)+'" stroke="rgba(255,255,255,0.38)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>';
+    var stBotYM=cy+58*sc;
+    glassHTML+='<line x1="'+cx+'" y1="'+botYM+'" x2="'+cx+'" y2="'+stBotYM+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<path d="M'+(cx-21*sc)+','+stBotYM+' Q'+cx+','+(stBotYM+3*sc)+' '+(cx+21*sc)+','+stBotYM+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
+  } else {
+    var twS=28*sc,thS=42*sc,txS=cx-twS/2,tyS=cy-2*sc,liqYS=tyS+thS*0.18;
+    var clipIdS='cl'+uid;
+    var outline2='M'+(txS+2*sc)+','+tyS+' L'+(txS+twS-2*sc)+','+tyS+' L'+(txS+twS+2*sc)+','+(tyS+thS)+' L'+(txS-2*sc)+','+(tyS+thS)+' Z';
+    glassHTML+='<clipPath id="'+clipIdS+'"><path d="'+outline2+'"/></clipPath>';
+    glassHTML+='<rect x="'+(txS-3*sc)+'" y="'+liqYS+'" width="'+(twS+8*sc)+'" height="'+(tyS+thS-liqYS+2*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdS+')"/>';
+    glassHTML+='<rect x="'+(txS-3*sc)+'" y="'+liqYS+'" width="'+(twS+8*sc)+'" height="'+(tyS+thS-liqYS+2*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdS+')"/>';
+    glassHTML+='<path d="'+outline2+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round"/>';
+    glassHTML+='<line x1="'+(txS+2*sc)+'" y1="'+tyS+'" x2="'+(txS+twS-2*sc)+'" y2="'+tyS+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
+  }
+  // Garnishes (only render exterior garnish if NOT espresso beans — those are handled inside glass above)
+  if(gn==='lemon twist'){garnishHTML='<path d="M'+(cx+28*sc)+','+(cy-20*sc)+' Q'+(cx+46*sc)+','+(cy-34*sc)+' '+(cx+38*sc)+','+(cy-50*sc)+'" stroke="#c8a828" stroke-width="'+(1.5*sc)+'" fill="none" stroke-linecap="round"/>';}
+  else if(gn==='lime wheel'){var wx=cx+28*sc,wy=cy-18*sc,wr=8.5*sc;garnishHTML='<circle cx="'+wx+'" cy="'+wy+'" r="'+wr+'" fill="rgba(80,155,45,0.38)" stroke="#3a9020" stroke-width="'+(0.9*sc)+'"/><line x1="'+(wx-wr)+'" y1="'+wy+'" x2="'+(wx+wr)+'" y2="'+wy+'" stroke="#3a9020" stroke-width="'+(0.55*sc)+'"/><line x1="'+wx+'" y1="'+(wy-wr)+'" x2="'+wx+'" y2="'+(wy+wr)+'" stroke="#3a9020" stroke-width="'+(0.55*sc)+'"/><line x1="'+(wx-wr*0.7)+'" y1="'+(wy-wr*0.7)+'" x2="'+(wx+wr*0.7)+'" y2="'+(wy+wr*0.7)+'" stroke="#3a9020" stroke-width="'+(0.45*sc)+'" opacity="0.6"/><line x1="'+(wx+wr*0.7)+'" y1="'+(wy-wr*0.7)+'" x2="'+(wx-wr*0.7)+'" y2="'+(wy+wr*0.7)+'" stroke="#3a9020" stroke-width="'+(0.45*sc)+'" opacity="0.6"/>';}
+  else if(gn==='orange twist'){garnishHTML='<path d="M'+(cx+26*sc)+','+(cy-18*sc)+' Q'+(cx+44*sc)+','+(cy-30*sc)+' '+(cx+36*sc)+','+(cy-46*sc)+'" stroke="#d87020" stroke-width="'+(1.7*sc)+'" fill="none" stroke-linecap="round"/>';}
+  else if(gn==='cherry'){garnishHTML='<circle cx="'+(cx+26*sc)+'" cy="'+(cy-22*sc)+'" r="'+(6*sc)+'" fill="#b01830" opacity="0.88"/><path d="M'+(cx+26*sc)+','+(cy-28*sc)+' Q'+(cx+23*sc)+','+(cy-36*sc)+' '+(cx+19*sc)+','+(cy-44*sc)+'" stroke="#285028" stroke-width="'+(1*sc)+'" fill="none" stroke-linecap="round"/>';}
+  else if(gn==='mint sprig'){garnishHTML='<line x1="'+(cx-5*sc)+'" y1="'+(cy-20*sc)+'" x2="'+(cx-8*sc)+'" y2="'+(cy-44*sc)+'" stroke="#387840" stroke-width="'+(0.9*sc)+'" stroke-linecap="round"/><ellipse cx="'+(cx-10*sc)+'" cy="'+(cy-38*sc)+'" rx="'+(5*sc)+'" ry="'+(7.5*sc)+'" fill="rgba(60,140,55,0.5)" transform="rotate(-22,'+(cx-10*sc)+','+(cy-38*sc)+')" /><ellipse cx="'+(cx-3*sc)+'" cy="'+(cy-44*sc)+'" rx="'+(4*sc)+'" ry="'+(6.5*sc)+'" fill="rgba(60,140,55,0.46)" transform="rotate(14,'+(cx-3*sc)+','+(cy-44*sc)+')"/>';}
+  else if(gn==='espresso beans'){garnishHTML='';}
+  else if(gn==='rose petal'){garnishHTML='<ellipse cx="'+(cx+26*sc)+'" cy="'+(cy-21*sc)+'" rx="'+(8*sc)+'" ry="'+(5.5*sc)+'" fill="rgba(185,60,80,0.42)" stroke="rgba(185,60,80,0.72)" stroke-width="'+(0.8*sc)+'" transform="rotate(-28,'+(cx+26*sc)+','+(cy-21*sc)+')"/>';}
+  else if(gn==='grapefruit'){var gx2=cx+28*sc,gy2=cy-18*sc,gr2=8.5*sc;garnishHTML='<circle cx="'+gx2+'" cy="'+gy2+'" r="'+gr2+'" fill="rgba(210,85,55,0.32)" stroke="#cc4838" stroke-width="'+(0.9*sc)+'"/><line x1="'+(gx2-gr2)+'" y1="'+gy2+'" x2="'+(gx2+gr2)+'" y2="'+gy2+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/><line x1="'+gx2+'" y1="'+(gy2-gr2)+'" x2="'+gx2+'" y2="'+(gy2+gr2)+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/>';}
+  return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg">'+defs+bg+'<g filter="url(#sk'+uid+')" opacity="0.95">'+glassHTML+garnishHTML+'</g></svg>';
+}
+function parseIng(raw){
+  if(!raw)return[];
+  var lines=raw.indexOf('\n')>=0?raw.split('\n'):raw.split(',');
+  return lines.map(function(s){s=s.trim();if(!s)return null;
+    var m=s.match(/^([\d\/\.½¾¼⅓⅔]+(?:\s+(?:oz|tsp|tbsp|dashes?|parts?|shots?|bar spoon|pinch|splash|drops?|tbsp))?\.?\s*)/i);
+    if(m)return{amt:m[1].trim(),item:s.slice(m[1].length).trim()};
+    var w=s.split(' ');if(w.length>1&&/^[\d\/\.½¾¼⅓⅔]/.test(w[0]))return{amt:w[0],item:w.slice(1).join(' ')};
+    return{amt:'',item:s};
+  }).filter(Boolean);
+}
+// Accurate flavor profile based on ingredient parsing
+function computeProfile(c){
+  var ing=(c.ing||'').toLowerCase();
+  // Parse oz for a named ingredient
+  function ozOf(rx){
+    var re=new RegExp('([\\d]+(?:\\.[\\d]+)?(?:\\s*\\/\\s*[\\d]+)?)\\s*oz[^,\\n]*?'+rx,'i');
+    var m=ing.match(re);
+    if(!m)return 0;
+    var v=m[1].replace(/\s+/g,'');
+    if(v.indexOf('/')>=0){var p=v.split('/');return parseFloat(p[0])/parseFloat(p[1]);}
+    return parseFloat(v)||0;
+  }
+  // Strength: estimate pure alcohol oz
+  var pa=0;
+  // Full-strength spirits ~40%
+  pa+=ozOf('(?:mezcal|tequila|gin|old tom gin|bourbon|rye whiskey|whiskey|cognac|pisco|brandy|drambuie)')*0.42;
+  pa+=ozOf('(?:(?:white|aged|jamaican|zacapa|puerto rican) rum|\\brum\\b)')*0.42;
+  pa+=ozOf('overproof')*0.60;
+  pa+=ozOf('angostura bitters')*0.447; // Angostura 44.7%
+  // Medium ABV ~25-35%
+  pa+=ozOf('(?:campari|amaro|benedictine|ancho reyes|primo aperitivo)')*0.28;
+  pa+=ozOf('(?:green chartreuse|yellow chartreuse|\\bchartreuse\\b)')*0.43;
+  pa+=ozOf('(?:cocchi|sweet vermouth|white vermouth|dry vermouth|vermouth)')*0.18;
+  pa+=ozOf('(?:oloroso sherry|sherry)')*0.18;
+  // Lower ABV ~15-22%
+  pa+=ozOf('(?:aperol)')*0.11;
+  pa+=ozOf('(?:licor 43|st\\.?\\s*germain|elderflower liqueur|maraschino liqueur|coffee liqueur|falernum|creme de|amaretto|cocchi americano)')*0.20;
+  // Scale to 0-10: 0.45oz pure alc = ~4, 0.9oz = ~7, 1.4oz+ = 10
+  var strength=Math.min(10,Math.max(0,Math.round(pa/1.5*10)));
+  // Enforce zero for known non-alcoholic
+  if(!/(mezcal|tequila|gin|bourbon|whiskey|rye|rum|cognac|pisco|bitters|campari|aperol|amaro|chartreuse|vermouth|liqueur|sherry|licor|drambuie|benedictine|amaretto|maraschino|elderflower|st\.?\s*germain|overproof)/.test(ing))strength=0;
+  // Sweetness 0-10 (10=very sweet, 0=very dry/sour)
+  var sw=3.5;
+  if(/orgeat/.test(ing))sw+=2.2;
+  if(/simple syrup/.test(ing))sw+=1.4;
+  if(/demerara syrup/.test(ing))sw+=1.2;
+  if(/agave nectar/.test(ing))sw+=1.0;
+  if(/passionfruit/.test(ing))sw+=2.0;
+  if(/pineapple/.test(ing))sw+=1.5;
+  if(/grenadine/.test(ing))sw+=2.2;
+  if(/amaretto/.test(ing))sw+=2.5;
+  if(/licor 43/.test(ing))sw+=1.5;
+  if(/st\.?\s*germain|elderflower/.test(ing))sw+=1.0;
+  if(/coffee liqueur/.test(ing))sw+=1.0;
+  if(/hibiscus syrup/.test(ing))sw+=0.8;
+  if(/ginger syrup/.test(ing))sw+=0.5;
+  if(/cinnamon syrup/.test(ing))sw+=0.8;
+  if(/chocolate syrup/.test(ing))sw+=2.2;
+  if(/honey syrup/.test(ing))sw+=1.0;
+  if(/rose syrup/.test(ing))sw+=0.8;
+  if(/falernum/.test(ing))sw+=1.2;
+  if(/maraschino liqueur/.test(ing))sw+=0.5;
+  if(/apricot liqueur/.test(ing))sw+=1.2;
+  // Dry/sour reducers — weight by approximate oz
+  var limeOz=ozOf('lime')||(/lime/.test(ing)?0.5:0);
+  var lemonOz=ozOf('lemon')||(/lemon/.test(ing)?0.5:0);
+  var grapeOz=ozOf('grapefruit')||(/grapefruit/.test(ing)?0.4:0);
+  sw-=limeOz*2.2;
+  sw-=lemonOz*2.2;
+  sw-=grapeOz*1.2;
+  if(/campari/.test(ing))sw-=1.2;
+  if(/aperol/.test(ing))sw-=0.6;
+  if(/dry vermouth/.test(ing))sw-=1.0;
+  if(/angostura bitters/.test(ing))sw-=0.4;
+  if(/cocchi americano/.test(ing))sw-=0.5;
+  sw=Math.min(10,Math.max(0,Math.round(sw*10)/10));
+  return{strength:strength,sweetness:sw};
+}
+function renderProfile(c){
+  var p=computeProfile(c);
+  var sPct=Math.round(p.strength/10*100);
+  var swPct=Math.round(p.sweetness/10*100);
+  // Dry/sour scale: sweetness 10=far left (sweet), 0=far right (dry)
+  var dryPct=100-swPct;
+  return '<div class="profile-meter">'
+    +'<div class="meter-row"><span>Mellow</span><span>Boozy</span></div>'
+    +'<div class="meter-track"><div class="meter-dot" style="left:'+sPct+'%"></div></div>'
+    +'<div class="meter-ticks">'+[0,1,2,3,4,5,6,7,8,9,10].map(function(n){return '<span>'+n+'</span>';}).join('')+'</div>'
+    +'</div>'
+    +'<div class="profile-meter" style="margin-top:12px">'
+    +'<div class="meter-row"><span>Sweet</span><span>Dry / Sour</span></div>'
+    +'<div class="meter-track"><div class="meter-dot" style="left:'+dryPct+'%"></div></div>'
+    +'<div class="meter-ticks">'+[0,1,2,3,4,5,6,7,8,9,10].map(function(n){return '<span>'+n+'</span>';}).join('')+'</div>'
+    +'</div>';
+}
+const PW='rabbitt';
+let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
+{id:1,cat:'favorites',name:'Divorce Papers',desc:'Created by bartender Leonardo Bernardes at Ba Bar in Seattle.',ing:'1.5 oz Gin, 1/2 oz Passionfruit Syrup, 3/4 oz Lemon, 1/2 oz Aperol, 1 bar spoon Honey Syrup',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Sweet','Gin'],glass:'coupe',color:'#e07830',garnish:'lemon twist'},
+{id:2,cat:'favorites',name:"Travellin' Man",desc:'BAMBINO, Paris.',ing:'2 oz Mezcal, 1 oz St. Germain Elderflower, 1 oz Lime, 1/4 oz Simple Syrup',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal','Dry'],glass:'coupe',color:'#d0d888',garnish:'lime wheel'},
+{id:3,cat:'favorites',name:'Paper Plane',desc:'Created by Samuel Ross, 2008, Violet Hour, Chicago.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Amaro Nonino, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Bourbon','Dry'],glass:'coupe',color:'#d07030',garnish:'lemon twist'},
+{id:4,cat:'favorites',name:'Naked & Famous',desc:'Created in 2011 by Joaquin Simo at Death & Company, New York.',ing:'3/4 oz Mezcal, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Mezcal','Chartreuse'],glass:'coupe',color:'#d86830',garnish:'lime wheel'},
+{id:5,cat:'favorites',name:'Joy',desc:'Created by @_thebarre_ in memory of his late Aunt Joy.',ing:'1.5 oz Mezcal, 3/4 oz Lime, 1/2 oz Campari, 1/2 oz Orgeat, 1 pinch Salt, 1 dash Orange Blossom Water',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Mezcal','Dry'],glass:'coupe',color:'#c83020',garnish:'lime wheel'},
+{id:6,cat:'favorites',name:'Cafe Ango I',desc:'Created by @verygooddrinks. Spice and intensity.',ing:'1 oz Angostura Bitters, 1 oz Licor 43, 1 oz Ancho Reyes, 2 oz Espresso',method:'Add all to a shaker with ice. Shake hard, briefly. Single strain into a coupe.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#3a1a08',garnish:'espresso beans'},
+{id:7,cat:'favorites',name:'Cafe Ango II',desc:'Created by @verygooddrinks.',ing:'1/2 oz Angostura Bitters, 1/2 oz Licor 43, 1/2 oz Ancho Reyes, 2 oz Espresso',method:'Single strain into a coupe or Nick & Nora.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#341608',garnish:'espresso beans'},
+{id:8,cat:'favorites',name:'Trinidad Sour',desc:'Created by Giuseppe Gonzalez at Clover Club Bar, Brooklyn, 2009.',ing:'1.5 oz Angostura Bitters, 3/4 oz Lemon, 3/4 oz Orgeat, 1/2 oz Rye Whiskey',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Dry','Bitters','Whiskey'],glass:'coupe',color:'#6a1808',garnish:'lemon twist'},
+{id:9,cat:'favorites',name:'Splendid Isolation',desc:'Snack Bar, Minneapolis.',ing:'2 oz Mezcal, 1 oz Lime, 3/4 oz Hibiscus Syrup, 1/2 oz Licor 43',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal'],glass:'coupe',color:'#b03060',garnish:'lemon twist'},
+{id:10,cat:'favorites',name:'Monte Casino',desc:'Created by Damon Dyer, 2010, New York City.',ing:'3/4 oz American Rye Whiskey, 3/4 oz Benedictine, 3/4 oz Yellow Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Chartreuse','Whiskey'],glass:'coupe',color:'#c8a020',garnish:'lemon twist'},
+{id:11,cat:'favorites',name:'La Vie',desc:'',ing:'2 oz Mezcal, 3/4 oz Coffee Liqueur, 1 oz Espresso, 1/2 oz Orgeat, 2 dashes Mole Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal','Espresso'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
+{id:12,cat:'favorites',name:'On Call',desc:'',ing:'1 oz Drambuie, 1 oz Monkey Shoulder Whiskey, 2 oz Espresso',method:'Dry shake first, then add ice and shake again. Double strain into a coupe.',tags:['House Favorite','Espresso','Whiskey'],glass:'coupe',color:'#321808',garnish:'espresso beans'},
+{id:13,cat:'favorites',name:'Petal',desc:'',ing:'1 oz Mezcal, 1 oz Campari, 1 oz Cocchi Vermouth di Torino, 1/2 oz Lime, 1/4 oz Rose Syrup, 1 Egg White',method:'Dry shake, add ice, shake again. Fine strain into a coupe. Garnish with rose petal.',tags:['House Favorite','Mezcal'],glass:'coupe',color:'#d04870',garnish:'rose petal'},
+{id:14,cat:'favorites',name:'Ward Eight',desc:'Created in 1898 at the Locke-Ober Cafe, Boston.',ing:'2 oz Rye Whiskey, 1/2 oz Lemon Juice, 1/2 oz Orange Juice, 1/2 oz Grenadine',method:'Shake all with ice. Strain into a coupe.',tags:['House Favorite','Whiskey'],glass:'coupe',color:'#d05050',garnish:'cherry'},
+{id:15,cat:'favorites',name:'White Toreador',desc:'Adapted from Jigger & Pony, Singapore.',ing:'1.5 oz White Tequila, 1/2 oz Lime, 1/2 oz Apricot Liqueur, 1/2 oz Simple Syrup, 1 Egg White, 1 tsp Full Fat Greek Yogurt',method:'Dry shake, add ice, shake again. Fine strain into a chilled coupe.',tags:['House Favorite','Tequila'],glass:'coupe',color:'#f0e4c0',garnish:'lemon twist'},
+{id:16,cat:'favorites',name:'Fitzgerald',desc:'',ing:'1.5 oz Gin, 1 oz Lemon, 1 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Gin','Dry','Bitters'],glass:'coupe',color:'#e0d890',garnish:'lemon twist'},
+{id:17,cat:'favorites',name:'Wink of the Rabbit',desc:'Our namesake. Tequila and mezcal bound by chocolate and blood orange.',ing:'1.5 oz Tequila Blanco, 1/2 oz Mezcal, 1 tsp Agave Nectar, 1.5 tbsp Chocolate Syrup, 1 dash Angostura Bitters',method:'Stir all with ice. Strain into a rocks glass. Garnish with blood orange twist.',tags:['House Favorite','Tequila','Mezcal','Bitters'],glass:'rocks',color:'#581408',garnish:'orange twist'},
+{id:20,cat:'dry',name:'Slurred Words',desc:'',ing:'1 oz Overproof Jamaican Rum, 1/2 oz Green Chartreuse, 1/2 oz Maraschino Liqueur, 1 oz Pineapple Juice, 1/2 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Chartreuse','Rum'],glass:'coupe',color:'#b8c040',garnish:'lime wheel'},
+{id:21,cat:'dry',name:'Trinidad Especial',desc:'Created by Valentino Bolognese, Angostura European Cocktail Competition, Paris 2008.',ing:'1 oz Angostura Bitters, 1/2 oz Pisco, 1 oz Orgeat, 2/3 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Bitters'],glass:'coupe',color:'#6a1808',garnish:'lime wheel'},
+{id:22,cat:'dry',name:'Medicina Latina',desc:'Adapted from Marcos Tello at The Varnish, Los Angeles, 2009.',ing:'2 oz Tequila Blanco, 3/4 oz Lime, 1/3 oz Ginger Syrup, 1/3 oz Honey Syrup, 1 bar spoon Mezcal (float)',method:'Shake all except mezcal with ice. Strain into a rocks glass. Float mezcal on top.',tags:['Dry','Tequila','Mezcal'],glass:'rocks',color:'#d0c870',garnish:'lemon twist'},
+{id:23,cat:'dry',name:'French Gimlet',desc:"Giffard's Guide, January 2024.",ing:'2 oz Gin, 1.5 oz Elderflower Liqueur, 1/2 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Gin'],glass:'coupe',color:'#d8e8b0',garnish:'lime wheel'},
+{id:24,cat:'dry',name:'Hemingway Daiquiri',desc:'',ing:'2 oz White Rum, 3/4 oz Lime, 1/2 oz Grapefruit, 1/2 oz Maraschino, 1/4 oz Simple Syrup',method:'Shake all with ice. Double strain into a frozen coupe.',tags:['Dry','Rum'],glass:'coupe',color:'#f0b8a0',garnish:'lime wheel'},
+{id:25,cat:'dry',name:'Six Figure',desc:'',ing:'1.5 oz Mezcal, 1.25 oz White Vermouth, 1/4 oz Yellow Chartreuse, 2 dashes Orange Bitters',method:'Stir all with ice. Strain into a coupe. Express lemon peel over the top.',tags:['Dry','Chartreuse','Mezcal'],glass:'coupe',color:'#d4d080',garnish:'lemon twist'},
+{id:26,cat:'dry',name:'Division Bell',desc:'',ing:'1 oz Mezcal, 3/4 oz Aperol, 1/2 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe. Express grapefruit peel oil over top.',tags:['Dry','Mezcal'],glass:'coupe',color:'#e06838',garnish:'grapefruit'},
+{id:27,cat:'dry',name:'Smoke Break',desc:'Created by @thelittle.ghost. Tart, bitter, citrus forward.',ing:'3/4 oz Mezcal, 3/4 oz Ancho Reyes, 3/4 oz Primo Aperitivo, 3/4 oz Agave, 1/2 oz Grapefruit, 1/4 oz Lime, 1 Egg White',method:'Dry shake first. Add ice, shake hard. Fine strain into a chilled glass.',tags:['Dry','Mezcal'],glass:'coupe',color:'#e0a070',garnish:'grapefruit'},
+{id:28,cat:'dry',name:'Flower Moon',desc:'',ing:'1.5 oz Mezcal, 1 oz St. Germain Elderflower, 3/4 oz Lemon, 1/2 oz Simple Syrup',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Mezcal'],glass:'coupe',color:'#dce890',garnish:'lemon twist'},
+{id:30,cat:'sweet',name:"Baby's First Bourbon",desc:'Created at Harvard & Stone, Los Angeles.',ing:'2 oz Bourbon, 3/4 oz Orgeat, 3/4 oz Lemon, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Sweet','Bourbon','Bitters'],glass:'coupe',color:'#c07820',garnish:'lemon twist'},
+{id:31,cat:'sweet',name:'Army & Navy',desc:'Origins traced to the 1930s.',ing:'1.5 oz Gin, 3/4 oz Lemon, 1/2 oz Orgeat, 1 dash Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Sweet','Gin','Bitters'],glass:'coupe',color:'#e4d890',garnish:'lemon twist'},
+{id:32,cat:'sweet',name:'Amaretto Sour',desc:'',ing:'1.5 oz Amaretto, 3/4 oz Bourbon, 1 oz Lemon, 1 tsp Demerara Syrup, 1 Egg White',method:'Dry shake all. Add ice, shake again. Double strain into a chilled coupe.',tags:['Sweet','Bourbon'],glass:'coupe',color:'#d09848',garnish:'cherry'},
+{id:33,cat:'sweet',name:'Privateer',desc:'',ing:'1.5 oz Tequila, 3/4 oz Pineapple, 3/4 oz Passionfruit Syrup, 1/2 oz Lime, 1 pinch Salt',method:'Shake all with ice. Strain into a highball over ice.',tags:['Sweet','Tequila'],glass:'highball',color:'#e0b020',garnish:'mint sprig'},
+{id:34,cat:'sweet',name:'Infante',desc:'Created by Giuseppe Gonzalez, 2009, New York.',ing:'2 oz Tequila Blanco, 3/4 oz Lime, 3/4 oz Orgeat, 2 dashes Rose Water',method:'Shake all with ice. Double strain into a coupe.',tags:['Sweet','Tequila'],glass:'coupe',color:'#e8dca8',garnish:'lemon twist'},
+{id:35,cat:'sweet',name:'Bow & Arrow',desc:'Created by Scott Teague at Dutch Kills, NYC, 2015.',ing:'1 oz Bourbon, 1 oz Mezcal, 3/4 oz Lime, 3/4 oz Pineapple, 1/2 oz Demerara Syrup',method:'Shake all with ice. Strain into a rocks glass over ice.',tags:['Sweet','Bourbon','Mezcal'],glass:'rocks',color:'#b87820',garnish:'lime wheel'},
+{id:36,cat:'sweet',name:'Mexico Navy',desc:'Riff on the Army & Navy. Created by Jordan Valls at Palomar, Portland OR.',ing:'2 oz Tequila Blanco, 1 oz Lime, 1/2 oz Ginger Syrup, 1/2 oz Orgeat, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Sweet','Tequila'],glass:'coupe',color:'#d8d890',garnish:'lemon twist'},
+{id:40,cat:'chartreuse',name:'Last Word',desc:'Created circa 1915-1916 at the Detroit Athletic Club.',ing:'3/4 oz Gin, 3/4 oz Green Chartreuse, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a chilled coupe. Garnish with a cherry.',tags:['Chartreuse','Dry','Gin'],glass:'coupe',color:'#88bc30',garnish:'cherry'},
+{id:41,cat:'chartreuse',name:'Scarlet Glow',desc:'',ing:'2 oz Pisco, 1/2 oz Yellow Chartreuse, 3/4 oz Grapefruit Juice, 1/2 oz Hibiscus Syrup',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['Chartreuse','Cognac'],glass:'coupe',color:'#b82850',garnish:'lemon twist'},
+{id:42,cat:'chartreuse',name:'Vowel of Silence',desc:'',ing:'3/4 oz Green Chartreuse, 3/4 oz Yellow Chartreuse, 3/4 oz Campari, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Chartreuse','Dry'],glass:'coupe',color:'#78980a',garnish:'lime wheel'},
+{id:43,cat:'chartreuse',name:'Champs-Elysees',desc:'A 1920s French classic, refined Sidecar variation.',ing:'2 oz Cognac, 3/4 oz Lemon, 1/2 oz Green Chartreuse, 1/4 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['Chartreuse','Cognac','Bitters'],glass:'coupe',color:'#c8c840',garnish:'lemon twist'},
+{id:44,cat:'chartreuse',name:'Last Oaxacan',desc:'Mezcal riff on the Last Word.',ing:'3/4 oz Mezcal, 3/4 oz Green Chartreuse, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a chilled coupe. Garnish with a cherry.',tags:['Chartreuse','Dry','Mezcal'],glass:'coupe',color:'#80a828',garnish:'cherry'},
+{id:45,cat:'chartreuse',name:'Final Ward',desc:'Riff on the Last Word - rye and lemon.',ing:'3/4 oz Rye Whiskey, 3/4 oz Green Chartreuse, 3/4 oz Maraschino Liqueur, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe. Garnish with lemon peel.',tags:['Chartreuse','Dry','Whiskey'],glass:'coupe',color:'#90b038',garnish:'lemon twist'},
+{id:50,cat:'espresso',name:'Carajillo',desc:'Spirit is optional.',ing:'1 oz Reposado Tequila, 1 oz Licor 43, 1.5 oz Espresso',method:'Build in a glass over ice. Pour Licor 43, then tequila, then espresso.',tags:['Espresso','Tequila','Liqueurs'],glass:'rocks',color:'#3c2010',garnish:'espresso beans'},
+{id:51,cat:'espresso',name:'Coffee Date',desc:'Created by @thelittle.ghost.',ing:'6 oz Cold Brew, 2 oz Date Milk Foam',method:'Build in a chilled glass over ice. Top with date foam.',tags:['Espresso'],glass:'highball',color:'#2a1606',garnish:'espresso beans'},
+{id:52,cat:'espresso',name:'Midnight Chai',desc:'SoHo House Paris.',ing:"1.5 oz Zacapa Rum, 1 oz Espresso, 1/4 oz Bailey's, 3/4 oz Chai, 1/2 oz Cinnamon Syrup",method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'coupe',color:'#3c2010',garnish:'espresso beans'},
+{id:53,cat:'espresso',name:'Salgamos',desc:'',ing:'1 oz Oloroso Sherry, 1/2 oz Puerto Rican Rum, 3/4 oz Orgeat, 1 oz Espresso',method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'coupe',color:'#381808',garnish:'espresso beans'},
+{id:54,cat:'espresso',name:'Espresso Martini',desc:'By @notjustabartender.',ing:'1.5 oz Rum or Tequila, 1.5 oz Espresso, 3/4 oz Coffee Liqueur, 1/4 oz Simple Syrup, 1 pinch Salt',method:'Shake all very hard with ice. Double strain into a coupe. Garnish with 3 espresso beans.',tags:['Espresso','Rum','Tequila','Liqueurs'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
+{id:60,cat:'lastriffs',name:'Almost Famous',desc:'Overproof rum riff on the Naked & Famous.',ing:'1 oz Overproof Jamaican Rum, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Rum','Chartreuse'],glass:'coupe',color:'#cc6020',garnish:'lime wheel'},
+{id:61,cat:'lastriffs',name:'Last Flight',desc:'Paper Plane riff with Green Chartreuse.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Green Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Bourbon','Chartreuse'],glass:'coupe',color:'#c09820',garnish:'lemon twist'},
+{id:62,cat:'lastriffs',name:'Not So Famous',desc:'Created by @onesipclub.',ing:'3/4 oz Mezcal, 3/4 oz Aperol, 3/4 oz Benedictine, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Mezcal'],glass:'coupe',color:'#d07030',garnish:'lime wheel'},
+{id:63,cat:'lastriffs',name:'Gringo Peligroso',desc:'Created by Lewis Caputa at Rosina Cocktail Lounge, Las Vegas.',ing:'1 oz Mezcal, 1 oz Amaro Montenegro, 3/4 oz Lime, 3/4 oz Ginger Syrup',method:'Double strain into a chilled rocks glass over ice. Garnish with candied ginger.',tags:['Last Riff','Mezcal'],glass:'rocks',color:'#906020',garnish:'lemon twist'},
+{id:64,cat:'lastriffs',name:'Monte Carlos',desc:'Created by @thelittle.ghost.',ing:'2 oz Tequila, 1/2 oz Benedictine, 2 dashes Angostura Bitters',method:'Stir with ice. Strain into a rocks glass over a large cube. Express lemon peel over the top.',tags:['Last Riff','Tequila','Bitters'],glass:'rocks',color:'#8a4010',garnish:'lemon twist'},
+{id:70,cat:'gin',name:'Smoke and Flowers',desc:'',ing:"1.5 oz Gin, 1/2 oz Mezcal, 1/2 oz St. Germain Elderflower, 1/4 oz Licor 43, 3/4 oz Hibiscus Syrup, 3/4 oz Lime, 1 dash Peychaud's Bitters",method:'Shake all with ice. Double strain into a chilled coupe.',tags:['Gin','Mezcal'],glass:'coupe',color:'#c04870',garnish:'rose petal'},
+{id:71,cat:'gin',name:'The Aviation (1910)',desc:'Created by Hugo Ensslin at Hotel Wallick, NYC. Published 1916.',ing:'2 oz Gin, 1/4 oz Creme de Violette, 1/4 oz Maraschino Liqueur, 1/2 oz Lemon',method:'Shake all with ice. Double strain into a chilled coupe. Garnish with a cherry.',tags:['Gin'],glass:'coupe',color:'#9888c8',garnish:'cherry'},
+{id:72,cat:'gin',name:'Casino',desc:'Classic gin-based drink from the early 20th century.',ing:'1.5 oz Old Tom Gin, 3/4 oz Maraschino Liqueur, 1/2 oz Lemon, 1 dash Orange Bitters',method:'Shake all with ice. Double strain into a coupe. Garnish with a cherry.',tags:['Gin'],glass:'coupe',color:'#e8d880',garnish:'cherry'},
+{id:73,cat:'gin',name:'The Sexpert',desc:"Created by Martin Cate at Smuggler's Cove, San Francisco, 2011.",ing:'1.5 oz Pisco, 1/2 oz Gin, 1/2 oz Falernum, 1/2 oz Lemon, 1/2 oz Passionfruit Syrup',method:'Shake all with ice. Double strain into a coupe.',tags:['Gin','Cognac'],glass:'coupe',color:'#e4c870',garnish:'lemon twist'},
+{id:74,cat:'gin',name:'Negroni',desc:'A timeless Italian aperitivo classic.',ing:'1 oz Gin, 1 oz Campari, 1 oz Sweet Vermouth',method:'Stir with ice. Strain into a rocks glass over a large cube. Express orange peel.',tags:['Gin'],glass:'rocks',color:'#c03828',garnish:'orange twist'},
+{id:82,cat:'mezcal',name:'Smoke Break',desc:'Created by @thelittle.ghost.',ing:'3/4 oz Mezcal, 3/4 oz Ancho Reyes, 3/4 oz Primo Aperitivo, 3/4 oz Agave, 1/2 oz Grapefruit, 1/4 oz Lime, 1 Egg White',method:'Dry shake first. Add ice, shake hard. Fine strain into a chilled glass.',tags:['Mezcal','Dry'],glass:'coupe',color:'#e0a070',garnish:'grapefruit'},
+{id:110,cat:'rum',name:'Morale & Welfare',desc:'Created by Ryan Lotz at Shore Leave, Boston. Featured in Easy Tiki.',ing:'1.5 oz Aged Overproof Rum, 3/4 oz Cinnamon Syrup, 3/4 oz Lime, 1/2 oz Grapefruit, 2 dashes Mole Bitters',method:'Shake all with ice. Strain into a highball over ice.',tags:['Rum','Bitters'],glass:'highball',color:'#7a3010',garnish:'lime wheel'},
+{id:120,cat:'cognac',name:'Sidecar',desc:"Attributed to Harry MacElhone at Harry's New York Bar, Paris.",ing:'1.5 oz Cognac, 3/4 oz Dry Curacao, 3/4 oz Lemon, 1 tsp Simple Syrup',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['Cognac'],glass:'coupe',color:'#d0a030',garnish:'lemon twist'},
+{id:130,cat:'bitters',name:'Angostura Royale',desc:'A bitters-forward stirred cocktail.',ing:'1.5 oz Angostura Bitters, 1 oz Bourbon, 1/2 oz Demerara Syrup',method:'Stir all with ice. Strain over a large cube.',tags:['Bitters','Bourbon'],glass:'rocks',color:'#4a1206',garnish:'orange twist'},
+{id:140,cat:'liqueurs',name:'White Noise',desc:'Created by @huntandalpine. Low ABV.',ing:'1.5 oz Cocchi Americano, 1 oz Elderflower Liqueur, 2 oz Soda Water',method:'Combine in a rocks glass with ice. Top with soda. Garnish with grapefruit twist.',tags:['Liqueurs'],glass:'highball',color:'#eaeec8',garnish:'grapefruit'}
+];
+function persist(){localStorage.setItem('wink-v5',JSON.stringify(cocktails));}
+var curCat='all',searchQ='',isAdmin=false,editing=null,logoClicks=0,logoTimer=null;
+var catCfg={
+  all:{eye:'Full Menu',title:'All Drinks',desc:''},
+  favorites:{eye:'House Favorites',title:'Signature Cocktails',desc:'The ones I make best. Bold flavors, balanced builds, zero shortcuts.'},
+  dry:{eye:'Dry',title:'Dry & Spirit-Forward',desc:'Cold, clean, and precise.'},
+  sweet:{eye:'Sweet',title:'Sweet & Indulgent',desc:'Dessert disguised as a drink.'},
+  chartreuse:{eye:'Chartreuse',title:'Chartreuse Cocktails',desc:'Made with Chartreuse — the alpine herbal liqueur that changes everything.'},
+  espresso:{eye:'Espresso',title:'Espresso Cocktails',desc:'When the night needs to go a little longer.'},
+  lastriffs:{eye:'Last Riffs',title:'Last Riffs',desc:'Spins on the classics. Same bones, new character.'},
+  gin:{eye:'By Spirit',title:'Gin',desc:''},mezcal:{eye:'By Spirit',title:'Mezcal',desc:''},
+  tequila:{eye:'By Spirit',title:'Tequila',desc:''},bourbon:{eye:'By Spirit',title:'Bourbon',desc:''},
+  whiskey:{eye:'By Spirit',title:'Whiskey & Rye',desc:''},rum:{eye:'By Spirit',title:'Rum',desc:''},
+  cognac:{eye:'By Spirit',title:'Cognac & Pisco',desc:''},bitters:{eye:'By Spirit',title:'Bitters',desc:''},
+  liqueurs:{eye:'By Spirit',title:'Liqueurs',desc:''}
+};
+var catLabel={favorites:'House Favorite',dry:'Dry',sweet:'Sweet',chartreuse:'Chartreuse',espresso:'Espresso',lastriffs:'Last Riff',gin:'Gin',mezcal:'Mezcal',tequila:'Tequila',bourbon:'Bourbon',whiskey:'Whiskey',rum:'Rum',cognac:'Cognac / Pisco',bitters:'Bitters',liqueurs:'Liqueurs'};
+var catToTag={favorites:['house favorite'],dry:['dry'],sweet:['sweet'],chartreuse:['chartreuse'],espresso:['espresso'],lastriffs:['last riff','last riffs'],gin:['gin'],mezcal:['mezcal'],tequila:['tequila'],bourbon:['bourbon'],whiskey:['whiskey','rye'],rum:['rum'],cognac:['cognac','pisco'],bitters:['bitters'],liqueurs:['liqueur','liqueurs']};
+var tagToCat={'house favorite':'favorites','dry':'dry','sweet':'sweet','chartreuse':'chartreuse','espresso':'espresso','last riff':'lastriffs','last riffs':'lastriffs','gin':'gin','mezcal':'mezcal','tequila':'tequila','bourbon':'bourbon','whiskey':'whiskey','rye':'whiskey','rum':'rum','cognac':'cognac','pisco':'cognac','bitters':'bitters','liqueur':'liqueurs','liqueurs':'liqueurs'};
+function matchesCat(c,cat){
+  if(cat==='all')return true;
+  if(c.cat===cat)return true;
+  var targets=catToTag[cat]||[];
+  return(c.tags||[]).some(function(t){return targets.indexOf(t.toLowerCase())>=0;});
+}
+var navOrder=['all','favorites','dry','sweet','chartreuse','espresso','lastriffs','bitters','bourbon','cognac','gin','liqueurs','mezcal','rum','tequila','whiskey'];
+function showCat(cat){
+  curCat=cat;searchQ='';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('show');
+  document.querySelectorAll('#nav a').forEach(function(a,i){a.classList.toggle('active',navOrder[i]===cat);});
+  var cfg=catCfg[cat]||catCfg.all;
+  document.getElementById('cat-eye').textContent=cfg.eye;
+  document.getElementById('cat-title').textContent=cfg.title;
+  document.getElementById('cat-desc').textContent=cfg.desc;
+  document.getElementById('hero').style.display=(cat==='all')?'':'none';
+  var list=cocktails.filter(function(c){return matchesCat(c,cat);});
+  renderGrid(list);closeSb();
+}
+document.getElementById('search-input').addEventListener('input',function(){
+  searchQ=this.value.trim().toLowerCase();
+  document.getElementById('search-clear').classList.toggle('show',searchQ.length>0);
+  if(!searchQ){showCat(curCat);return;}
+  document.getElementById('hero').style.display='none';
+  document.getElementById('cat-eye').textContent='Search';
+  document.getElementById('cat-title').textContent='Results for "'+this.value.trim()+'"';
+  document.getElementById('cat-desc').textContent='';
+  var q=searchQ;
+  var list=cocktails.filter(function(c){
+    return c.name.toLowerCase().indexOf(q)>=0||(c.desc||'').toLowerCase().indexOf(q)>=0||(c.ing||'').toLowerCase().indexOf(q)>=0||(c.tags||[]).some(function(t){return t.toLowerCase().indexOf(q)>=0;});
+  });
+  renderGrid(list);
+});
+function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').classList.remove('show');searchQ='';showCat(curCat);}
+function renderGrid(list){
+  var grid=document.getElementById('grid');
+  if(!list.length){grid.innerHTML='<div class="empty"><div class="ico">&#127864;</div><p>No cocktails found.</p></div>';return;}
+  grid.innerHTML=list.map(function(c){
+    return '<div class="card" onclick="openM('+c.id+')">'
+      +'<div class="card-img">'+drawCocktail(c.glass,c.color,c.garnish,176)+'</div>'
+      +'<div class="card-body">'
+      +'<div class="card-cat">'+(catLabel[c.cat]||c.cat)+'</div>'
+      +'<div class="card-name">'+c.name+'</div>'
+      +'<div class="card-desc">'+(c.desc||'')+'</div>'
+      +'<div class="tags">'+(c.tags||[]).slice(0,3).map(function(t){return '<span class="tag" onclick="tagClick(event,\''+t.replace(/'/g,"\\'")+'\')">'+t+'</span>';}).join('')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+function tagClick(e,tag){e.stopPropagation();var cat=tagToCat[tag.toLowerCase()];if(cat)showCat(cat);}
+function openM(id){
+  var c=cocktails.find(function(x){return x.id===id;});if(!c)return;
+  document.getElementById('m-img').innerHTML=drawCocktail(c.glass,c.color,c.garnish,240);
+  document.getElementById('m-cat').textContent=catLabel[c.cat]||c.cat;
+  document.getElementById('m-name').textContent=c.name;
+  var oel=document.getElementById('m-origin');oel.textContent=c.desc||'';oel.className='m-origin'+(c.desc?' show':'');
+  document.getElementById('m-ing').innerHTML=parseIng(c.ing).map(function(i){return '<li><span>'+i.item+'</span><span class="amt">'+i.amt+'</span></li>';}).join('');
+  document.getElementById('m-method').textContent=c.method||'';
+  document.getElementById('m-profile').innerHTML=renderProfile(c);
+  document.getElementById('m-tags').innerHTML=(c.tags||[]).map(function(t){var cat=tagToCat[t.toLowerCase()];return '<span class="tag"'+(cat?' onclick="closeM();showCat(\''+cat+'\')" style="cursor:pointer"':'')+'>'+t+'</span>';}).join('');
+  document.getElementById('modal-bg').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeM(){document.getElementById('modal-bg').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-bg').addEventListener('click',function(e){if(e.target===this)closeM();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeM();closeLogin();}});
+function openLogin(){if(isAdmin){showAdmin();return;}document.getElementById('admin-login').classList.add('open');document.getElementById('admin-pw').value='';document.getElementById('login-err').classList.remove('show');setTimeout(function(){document.getElementById('admin-pw').focus();},100);}
+function closeLogin(){document.getElementById('admin-login').classList.remove('open');}
+document.getElementById('admin-pw').addEventListener('keydown',function(e){if(e.key==='Enter')checkLogin();});
+document.getElementById('login-btn').onclick=checkLogin;
+function checkLogin(){if(document.getElementById('admin-pw').value===PW){isAdmin=true;closeLogin();showAdmin();}else{document.getElementById('login-err').classList.add('show');document.getElementById('admin-pw').value='';}}
+document.getElementById('sb-logo').addEventListener('click',function(){logoClicks++;clearTimeout(logoTimer);logoTimer=setTimeout(function(){logoClicks=0;},600);if(logoClicks>=3){logoClicks=0;openLogin();}});
+function showAdmin(){document.getElementById('view-menu').style.display='none';document.getElementById('admin-panel').classList.add('open');renderAdminList();}
+function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');document.getElementById('view-menu').style.display='';hideForm();}
+function renderAdminList(){
+  document.getElementById('adm-list').innerHTML=cocktails.map(function(c){
+    return '<div class="adm-item"><div class="adm-thumb">'+drawCocktail(c.glass,c.color,c.garnish,46)+'</div><div class="adm-info"><div class="adm-name">'+c.name+'</div><div class="adm-cat">'+(catLabel[c.cat]||c.cat)+'</div></div><div class="adm-acts"><button class="btn btn-o" onclick="showForm('+c.id+')">Edit</button><button class="btn btn-d" onclick="deleteC('+c.id+')">Delete</button></div></div>';
+  }).join('');
+}
+function showForm(id){
+  editing=id;document.getElementById('cocktail-form').classList.add('open');
+  document.getElementById('f-title-lbl').textContent=id?'Edit Cocktail':'New Cocktail';
+  if(id){var c=cocktails.find(function(x){return x.id===id;});if(c){document.getElementById('edit-id').value=c.id;document.getElementById('f-name').value=c.name;document.getElementById('f-cat').value=c.cat;document.getElementById('f-desc').value=c.desc||'';document.getElementById('f-ing').value=typeof c.ing==='string'?c.ing:(c.ing||[]).map(function(i){return i.amt+' '+i.item;}).join('\n');document.getElementById('f-method').value=c.method||'';document.getElementById('f-tags').value=(c.tags||[]).join(', ');document.getElementById('f-glass').value=c.glass||'coupe';document.getElementById('f-color').value=c.color||'#c9a84c';document.getElementById('f-garnish').value=c.garnish||'none';}}
+  else{document.getElementById('edit-id').value='';['f-name','f-desc','f-ing','f-method','f-tags'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('f-cat').value='favorites';document.getElementById('f-glass').value='coupe';document.getElementById('f-color').value='#c9a84c';document.getElementById('f-garnish').value='none';}
+  document.getElementById('cocktail-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function hideForm(){document.getElementById('cocktail-form').classList.remove('open');editing=null;}
+document.getElementById('save-btn').onclick=function(){
+  var name=document.getElementById('f-name').value.trim();if(!name){alert('Please enter a cocktail name.');return;}
+  var data={name:name,cat:document.getElementById('f-cat').value,desc:document.getElementById('f-desc').value.trim(),ing:document.getElementById('f-ing').value.trim(),method:document.getElementById('f-method').value.trim(),tags:document.getElementById('f-tags').value.split(',').map(function(t){return t.trim();}).filter(Boolean),glass:document.getElementById('f-glass').value,color:document.getElementById('f-color').value,garnish:document.getElementById('f-garnish').value};
+  var eid=document.getElementById('edit-id').value;
+  if(eid){var idx=cocktails.findIndex(function(c){return c.id===parseInt(eid);});if(idx>=0)cocktails[idx]=Object.assign({},cocktails[idx],data);}
+  else{data.id=Date.now();cocktails.push(data);}
+  persist();hideForm();renderAdminList();
+};
+function deleteC(id){var c=cocktails.find(function(x){return x.id===id;});if(!c||!confirm('Delete "'+c.name+'"?'))return;cocktails=cocktails.filter(function(x){return x.id!==id;});persist();renderAdminList();}
+function toggleSb(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');}
+function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+showCat('all');
+</script>
+</body>
+</html>
