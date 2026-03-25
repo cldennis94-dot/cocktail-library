@@ -246,10 +246,22 @@ textarea{resize:vertical;min-height:70px}
   <div id="admin-panel">
     <div class="adm-hd">
       <h2>Manage Cocktails</h2>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-y" onclick="showForm(null)">+ Add Cocktail</button>
+        <button class="btn btn-o" onclick="exportCocktails()">Export JSON</button>
+        <button class="btn btn-o" onclick="openImport()">Import JSON</button>
         <button class="btn btn-o" onclick="closeAdmin()">Back to Menu</button>
       </div>
+    </div>
+    <div id="import-box" style="display:none;background:var(--bg3);border:1px solid rgba(212,211,24,.12);border-radius:10px;padding:20px;margin-bottom:22px">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--white);margin-bottom:6px">Import Cocktail Data</div>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:12px;line-height:1.6">Paste the JSON you exported from another device. This will <strong style="color:var(--coral)">replace all current cocktails</strong> on this device.</p>
+      <textarea id="import-json" style="width:100%;min-height:100px;font-size:11px;font-family:monospace;margin-bottom:10px" placeholder='[{"id":1,"name":"..."}, ...]'></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-y" onclick="doImport()">Import & Save</button>
+        <button class="btn btn-o" onclick="closeImport()">Cancel</button>
+      </div>
+      <div id="import-msg" style="font-size:11px;margin-top:8px;display:none"></div>
     </div>
     <div id="cocktail-form">
       <div class="f-title" id="f-title-lbl">New Cocktail</div>
@@ -595,6 +607,36 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:140,cat:'liqueurs',name:'White Noise',desc:'Created by @huntandalpine. Low ABV.',ing:'1.5 oz Cocchi Americano, 1 oz Elderflower Liqueur, 2 oz Soda Water',method:'Combine in a rocks glass with ice. Top with soda. Garnish with grapefruit twist.',tags:['Liqueurs'],glass:'highball',color:'#eaeec8',garnish:'grapefruit'}
 ];
 function persist(){localStorage.setItem('wink-v5',JSON.stringify(cocktails));}
+function exportCocktails(){
+  var json=JSON.stringify(cocktails,null,2);
+  navigator.clipboard.writeText(json).then(function(){
+    var btn=document.querySelector('[onclick="exportCocktails()"]');
+    var orig=btn.textContent;btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent=orig;},2000);
+  }).catch(function(){
+    prompt('Copy this JSON and save it somewhere safe:',json);
+  });
+}
+function openImport(){
+  document.getElementById('import-box').style.display='block';
+  document.getElementById('import-json').value='';
+  document.getElementById('import-msg').style.display='none';
+  document.getElementById('import-box').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeImport(){document.getElementById('import-box').style.display='none';}
+function doImport(){
+  var msg=document.getElementById('import-msg');
+  msg.style.display='block';
+  try{
+    var data=JSON.parse(document.getElementById('import-json').value.trim());
+    if(!Array.isArray(data)||!data.length)throw new Error('Not a valid cocktail array');
+    cocktails=data;persist();renderAdminList();closeImport();
+    msg.style.color='#88c868';msg.textContent='Imported '+data.length+' cocktails successfully.';
+    setTimeout(function(){msg.style.display='none';},3000);
+  }catch(e){
+    msg.style.color='#c07060';msg.textContent='Invalid JSON: '+e.message;
+  }
+}
 var curCat='all',searchQ='',isAdmin=false,editing=null,logoClicks=0,logoTimer=null;
 var catCfg={
   all:{eye:'Full Menu',title:'All Drinks',desc:''},
