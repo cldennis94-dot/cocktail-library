@@ -311,7 +311,7 @@ textarea{resize:vertical;min-height:70px}
           <select id="f-garnish">
             <option value="none">None</option><option value="lemon twist">Lemon Twist</option><option value="lime wheel">Lime Wheel</option>
             <option value="orange twist">Orange Twist</option><option value="cherry">Cherry</option><option value="mint sprig">Mint Sprig</option>
-            <option value="espresso beans">Espresso Beans</option><option value="rose petal">Rose Petal</option><option value="grapefruit">Grapefruit</option>
+            <option value="espresso beans">Espresso Beans</option><option value="cold foam">Cold Foam</option><option value="rose petal">Rose Petal</option><option value="grapefruit">Grapefruit</option>
           </select>
         </div>
       </div>
@@ -353,18 +353,19 @@ function drawCocktail(glass,color,garnish,size){
   // Adaptive fill opacity: dark drinks (espresso) need higher opacity or they go grey on cream bg
   function lumv(h){var r=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(r+gv+b)/765;}
   var lv=lumv(c);
-  var fillOp=lv<0.12?0.96:lv<0.22?0.72:lv<0.4?0.60:0.54;
+  var fillOp=lv<0.12?1.0:lv<0.22?0.72:lv<0.4?0.60:0.54;
   function rgba(h,op){var r=parseInt(h.slice(1,3),16),gv=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return 'rgba('+r+','+gv+','+b+','+op+')';}
-  // Liquid surface highlight: dark drinks get a warm amber lift instead of white wash
-  var liqTopOp=lv<0.18?'0.0':lv<0.32?'0.10':'0.20';
+  // Depth gradient: dark drinks get warm amber top (real espresso surface), others get white highlight
+  var liqGradTop=lv<0.12?'rgba(195,95,25,0.22)':lv<0.32?'rgba(255,255,255,0.10)':'rgba(255,255,255,0.20)';
+  var liqGradMid=lv<0.12?'rgba(160,65,15,0.06)':'rgba(255,255,255,0.03)';
   var defs='<defs>'
     +'<pattern id="xh'+uid+'" patternUnits="userSpaceOnUse" width="7" height="7">'
     +'<line x1="0" y1="7" x2="7" y2="0" stroke="'+ink+'" stroke-width="0.3" opacity="0.09"/>'
     +'</pattern>'
     +'<linearGradient id="liqD'+uid+'" x1="0" y1="0" x2="0" y2="1">'
-    +'<stop offset="0%" stop-color="rgba(255,255,255,'+liqTopOp+')"/>'
-    +'<stop offset="28%" stop-color="rgba(255,255,255,0.03)"/>'
-    +'<stop offset="100%" stop-color="rgba(0,0,0,0.10)"/>'
+    +'<stop offset="0%" stop-color="'+liqGradTop+'"/>'
+    +'<stop offset="30%" stop-color="'+liqGradMid+'"/>'
+    +'<stop offset="100%" stop-color="rgba(0,0,0,0.12)"/>'
     +'</linearGradient>'
     +'<radialGradient id="bgG'+uid+'" cx="50%" cy="42%" r="58%">'
     +'<stop offset="0%" stop-color="#f5eee4"/>'
@@ -374,8 +375,15 @@ function drawCocktail(glass,color,garnish,size){
     +'<feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" result="noise"/>'
     +'<feDisplacementMap in="SourceGraphic" in2="noise" scale="'+(0.6*sc)+'" xChannelSelector="R" yChannelSelector="G"/>'
     +'</filter>'
+    +'<linearGradient id="cfBlend'+uid+'" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="rgba(242,228,205,0.62)"/>'
+    +'<stop offset="55%" stop-color="rgba(235,215,188,0.22)"/>'
+    +'<stop offset="100%" stop-color="rgba(225,205,170,0.0)"/>'
+    +'</linearGradient>'
     +'</defs>';
   var bg='<rect width="'+size+'" height="'+size+'" fill="url(#bgG'+uid+')" />';
+  // Meniscus line: warm amber for very dark drinks, white for light ones
+  var meniscusColor=lv<0.12?'rgba(200,125,45,0.40)':'rgba(255,255,255,0.28)';
   var glassHTML='',garnishHTML='';
   // Helper: draw espresso foam + 3 beans inside a clipped area
   function espressoFoam(clipId,foamX,foamY,foamW,foamH){
@@ -416,6 +424,34 @@ function drawCocktail(glass,color,garnish,size){
     }
     return html;
   }
+  // Helper: draw cold milk foam with optional blend/infusion zone below
+  function coldFoam(clipId,foamX,foamY,foamW,foamH,blendH){
+    var bH=blendH||0;
+    var html='';
+    // Blend/infusion zone — cream tendrils melting down into dark liquid
+    if(bH>0){
+      var fb=foamY+foamH; // bottom edge of foam
+      // Main gradient fade from foam into liquid
+      html+='<rect x="'+foamX+'" y="'+fb+'" width="'+foamW+'" height="'+bH+'" fill="url(#cfBlend'+uid+')" clip-path="url(#'+clipId+')"/>';
+      // Wispy tendrils — 3 irregular plumes descending into the coffee
+      var mx=foamX+foamW*0.5;
+      html+='<path d="M'+(foamX+foamW*0.22)+','+fb+' C'+(foamX+foamW*0.18)+','+(fb+bH*0.35)+' '+(foamX+foamW*0.28)+','+(fb+bH*0.55)+' '+(foamX+foamW*0.2)+','+(fb+bH*0.85)+'" stroke="rgba(240,225,200,0.34)" stroke-width="'+(1.3*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId+')"/>';
+      html+='<path d="M'+(mx)+','+fb+' C'+(mx-foamW*0.06)+','+(fb+bH*0.28)+' '+(mx+foamW*0.1)+','+(fb+bH*0.52)+' '+(mx)+','+(fb+bH*0.9)+'" stroke="rgba(245,232,210,0.26)" stroke-width="'+(0.9*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId+')"/>';
+      html+='<path d="M'+(foamX+foamW*0.74)+','+fb+' C'+(foamX+foamW*0.8)+','+(fb+bH*0.3)+' '+(foamX+foamW*0.66)+','+(fb+bH*0.6)+' '+(foamX+foamW*0.72)+','+(fb+bH*0.8)+'" stroke="rgba(238,220,195,0.28)" stroke-width="'+(0.75*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId+')"/>';
+    }
+    // Base foam — slightly translucent so dark coffee shows at edges
+    html+='<rect x="'+foamX+'" y="'+foamY+'" width="'+foamW+'" height="'+foamH+'" fill="rgba(248,242,232,0.90)" clip-path="url(#'+clipId+')"/>';
+    // Top surface highlight — brighter center
+    html+='<ellipse cx="'+(foamX+foamW*0.5)+'" cy="'+(foamY+foamH*0.3)+'" rx="'+(foamW*0.36)+'" ry="'+(foamH*0.42)+'" fill="rgba(255,255,255,0.52)" clip-path="url(#'+clipId+')"/>';
+    // Soft warm shadow at bottom edge (foam depth)
+    html+='<rect x="'+foamX+'" y="'+(foamY+foamH*0.65)+'" width="'+foamW+'" height="'+(foamH*0.35)+'" fill="rgba(185,160,125,0.22)" clip-path="url(#'+clipId+')"/>';
+    // Gentle surface texture swirls
+    html+='<line x1="'+(foamX+foamW*0.08)+'" y1="'+(foamY+foamH*0.44)+'" x2="'+(foamX+foamW*0.52)+'" y2="'+(foamY+foamH*0.36)+'" stroke="rgba(240,232,215,0.65)" stroke-width="'+(foamH*0.22)+'" stroke-linecap="round" clip-path="url(#'+clipId+')"/>';
+    html+='<line x1="'+(foamX+foamW*0.42)+'" y1="'+(foamY+foamH*0.55)+'" x2="'+(foamX+foamW*0.86)+'" y2="'+(foamY+foamH*0.44)+'" stroke="rgba(240,232,215,0.45)" stroke-width="'+(foamH*0.18)+'" stroke-linecap="round" clip-path="url(#'+clipId+')"/>';
+    // Top sheen line
+    html+='<line x1="'+(foamX+foamW*0.1)+'" y1="'+(foamY+foamH*0.12)+'" x2="'+(foamX+foamW*0.62)+'" y2="'+(foamY+foamH*0.09)+'" stroke="rgba(255,255,255,0.72)" stroke-width="'+(0.65*sc)+'" stroke-linecap="round"/>';
+    return html;
+  }
   if(g==='coupe'){
     var rimW=33*sc,rimY=cy-44*sc,bowlBotY=cy+12*sc;
     // Espresso drinks: fill nearly to the brim (6*sc below rim) so foam sits just inside glass
@@ -429,7 +465,7 @@ function drawCocktail(glass,color,garnish,size){
     glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId+')"/>';
     glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipId+')"/>';
     glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId+')"/>';
-    glassHTML+='<line x1="'+(cx-bellyW)+'" y1="'+liqY+'" x2="'+(cx+bellyW)+'" y2="'+liqY+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
+    glassHTML+='<line x1="'+(cx-bellyW)+'" y1="'+liqY+'" x2="'+(cx+bellyW)+'" y2="'+liqY+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
     if(gn==='espresso beans'){
       // Fixed foam height — looks like ~8mm of crema on a real espresso martini
       var foamH=10*sc;
@@ -442,7 +478,9 @@ function drawCocktail(glass,color,garnish,size){
     glassHTML+='<line x1="'+cx+'" y1="'+bowlBotY+'" x2="'+cx+'" y2="'+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
     glassHTML+='<path d="M'+(cx-20*sc)+','+stemBotY+' Q'+cx+','+(stemBotY+3*sc)+' '+(cx+20*sc)+','+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
   } else if(g==='rocks'){
-    var tw=56*sc,th=56*sc,tx=cx-tw/2,ty=cy-th/2+4*sc,liqY2=ty+th*0.32;
+    var tw=56*sc,th=56*sc,tx=cx-tw/2,ty=cy-th/2+4*sc;
+    // Cold foam: fill glass nearly to top so foam sits just inside rim
+    var liqY2=gn==='cold foam'?ty+th*0.08:ty+th*0.32;
     var clipId2='cl'+uid;
     var outline='M'+(tx+3*sc)+','+ty+' L'+(tx+tw-3*sc)+','+ty+' L'+(tx+tw+2*sc)+','+(ty+th)+' L'+(tx-2*sc)+','+(ty+th)+' Z';
     glassHTML+='<clipPath id="'+clipId2+'"><path d="'+outline+'"/></clipPath>';
@@ -450,11 +488,19 @@ function drawCocktail(glass,color,garnish,size){
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId2+')"/>';
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipId2+')"/>';
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId2+')"/>';
-    glassHTML+='<line x1="'+(tx+2*sc)+'" y1="'+liqY2+'" x2="'+(tx+tw-2*sc)+'" y2="'+liqY2+'" stroke="rgba(255,255,255,0.26)" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
-    if(gn==='espresso beans'){
+    if(gn==='cold foam'){
+      // Ice cube sits in the dark liquid, visible below foam
+      var iceSz=18*sc,iceX=cx-iceSz*0.5,iceY=liqY2+th*0.32;
+      glassHTML+='<rect x="'+iceX+'" y="'+iceY+'" width="'+iceSz+'" height="'+iceSz+'" rx="'+(2*sc)+'" fill="rgba(215,232,252,0.14)" stroke="rgba(210,228,250,0.38)" stroke-width="'+(0.55*sc)+'"/>';
+      glassHTML+='<line x1="'+(iceX+iceSz*0.14)+'" y1="'+(iceY+iceSz*0.1)+'" x2="'+(iceX+iceSz*0.58)+'" y2="'+(iceY+iceSz*0.06)+'" stroke="rgba(255,255,255,0.32)" stroke-width="'+(0.5*sc)+'" stroke-linecap="round"/>';
+      var foamH3=th*0.18,blendH3=th*0.28;
+      glassHTML+=coldFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,foamH3,blendH3);
+    } else if(gn==='espresso beans'){
+      glassHTML+='<line x1="'+(tx+2*sc)+'" y1="'+liqY2+'" x2="'+(tx+tw-2*sc)+'" y2="'+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
       var foamH3=th*0.2;
       glassHTML+=espressoFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,foamH3);
     } else {
+      glassHTML+='<line x1="'+(tx+2*sc)+'" y1="'+liqY2+'" x2="'+(tx+tw-2*sc)+'" y2="'+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
       var iceSz=20*sc,iceX=cx-iceSz*0.5,iceY=liqY2+5*sc;
       glassHTML+='<rect x="'+iceX+'" y="'+iceY+'" width="'+iceSz+'" height="'+iceSz+'" rx="'+(2*sc)+'" fill="rgba(215,232,252,0.16)" stroke="rgba(210,228,250,0.44)" stroke-width="'+(0.55*sc)+'"/>';
       glassHTML+='<line x1="'+(iceX+iceSz*0.14)+'" y1="'+(iceY+iceSz*0.1)+'" x2="'+(iceX+iceSz*0.58)+'" y2="'+(iceY+iceSz*0.06)+'" stroke="rgba(255,255,255,0.38)" stroke-width="'+(0.5*sc)+'" stroke-linecap="round"/>';
@@ -464,21 +510,26 @@ function drawCocktail(glass,color,garnish,size){
     glassHTML+='<line x1="'+(tx+3*sc)+'" y1="'+ty+'" x2="'+(tx+tw-3*sc)+'" y2="'+ty+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
     glassHTML+='<line x1="'+(tx+8*sc)+'" y1="'+(ty+4*sc)+'" x2="'+(tx+8*sc)+'" y2="'+(ty+th-7*sc)+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
   } else if(g==='highball'){
-    var twH=38*sc,thH=80*sc,txH=cx-twH/2,tyH=cy-thH/2-2*sc,liqYH=tyH+thH*0.22;
+    var twH=38*sc,thH=80*sc,txH=cx-twH/2,tyH=cy-thH/2-2*sc;
+    // Cold foam drinks: fill glass nearly to top so foam sits right at the surface
+    var liqYH=gn==='cold foam'?tyH+thH*0.06:tyH+thH*0.22;
     var clipIdH='cl'+uid;
     glassHTML+='<clipPath id="'+clipIdH+'"><rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'"/></clipPath>';
     glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="rgba(245,238,228,0.18)"/>';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdH+')"/>';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipIdH+')" />';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdH+')"/>';
-    glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+liqYH+'" x2="'+(txH+twH-2*sc)+'" y2="'+liqYH+'" stroke="rgba(255,255,255,0.26)" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipIdH+')" />';
+    glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+liqYH+'" x2="'+(txH+twH-2*sc)+'" y2="'+liqYH+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipIdH+')" />';
     if(gn==='espresso beans'){
       var foamH4=thH*0.14;
       glassHTML+=espressoFoam(clipIdH,txH,liqYH,twH,foamH4);
+    } else if(gn==='cold foam'){
+      var cfH=thH*0.18;
+      glassHTML+=coldFoam(clipIdH,txH,liqYH,twH,cfH);
     }
     glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'"/>';
     glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+tyH+'" x2="'+(txH+twH-2*sc)+'" y2="'+tyH+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
-    if(gn!=='espresso beans'){
+    if(gn!=='espresso beans'&&gn!=='cold foam'){
       glassHTML+='<line x1="'+(cx+10*sc)+'" y1="'+(tyH-10*sc)+'" x2="'+(cx+13*sc)+'" y2="'+(tyH+thH-5*sc)+'" stroke="#c8c018" stroke-width="'+(2.2*sc)+'" stroke-linecap="round" opacity="0.7"/>';
     }
     glassHTML+='<line x1="'+(txH+7*sc)+'" y1="'+(tyH+4*sc)+'" x2="'+(txH+7*sc)+'" y2="'+(tyH+thH-8*sc)+'" stroke="rgba(255,255,255,0.26)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
@@ -647,7 +698,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:13,cat:'favorites',name:'Petal',desc:'',ing:'1 oz Mezcal, 1 oz Campari, 1 oz Cocchi Vermouth di Torino, 1/2 oz Lime, 1/4 oz Rose Syrup, 1 Egg White',method:'Dry shake, add ice, shake again. Fine strain into a coupe. Garnish with rose petal.',tags:['House Favorite','Mezcal'],glass:'coupe',color:'#d04870',garnish:'rose petal'},
 {id:14,cat:'favorites',name:'Ward Eight',desc:'Created in 1898 at the Locke-Ober Cafe, Boston.',ing:'2 oz Rye Whiskey, 1/2 oz Lemon Juice, 1/2 oz Orange Juice, 1/2 oz Grenadine',method:'Shake all with ice. Strain into a coupe.',tags:['House Favorite','Whiskey'],glass:'coupe',color:'#ff6a00',garnish:'cherry'},
 {id:15,cat:'favorites',name:'White Toreador',desc:'Adapted from Jigger & Pony, Singapore.',ing:'1.5 oz White Tequila, 1/2 oz Lime, 1/2 oz Apricot Liqueur, 1/2 oz Simple Syrup, 1 Egg White, 1 tsp Full Fat Greek Yogurt',method:'Dry shake, add ice, shake again. Fine strain into a chilled coupe.',tags:['House Favorite','Tequila'],glass:'coupe',color:'#f0e4c0',garnish:'lemon twist'},
-{id:16,cat:'gin',name:'Fitzgerald',desc:'',ing:'1.5 oz Gin, 1 oz Lemon, 1 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Gin','Dry','Bitters'],glass:'coupe',color:'#e0d890',garnish:'lemon twist'},
+{id:16,cat:'gin',name:'Fitzgerald',desc:'Created in the early 1990s by legendary bartender Dale DeGroff at the Rainbow Room in New York City. Originally dubbed the "Gin Thing," this refreshing mixture of gin, lemon juice, simple syrup, and Angostura bitters was renamed to honor author F. Scott Fitzgerald.',ing:'1.5 oz Gin, 1 oz Lemon, 1 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Gin','Dry','Bitters'],glass:'coupe',color:'#e0d890',garnish:'lemon twist'},
 {id:17,cat:'favorites',name:'Wink of the Rabbit',desc:'Our namesake. Tequila and mezcal bound by chocolate and blood orange.',ing:'1.5 oz Tequila Blanco, 1/2 oz Mezcal, 1 tsp Agave Nectar, 1.5 tbsp Chocolate Syrup, 1 dash Angostura Bitters',method:'Stir all with ice. Strain into a rocks glass. Garnish with blood orange twist.',tags:['House Favorite','Tequila','Mezcal','Bitters'],glass:'rocks',color:'#581408',garnish:'orange twist'},
 {id:20,cat:'dry',name:'Slurred Words',desc:'',ing:'1 oz Overproof Jamaican Rum, 1/2 oz Green Chartreuse, 1/2 oz Maraschino Liqueur, 1 oz Pineapple Juice, 1/2 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Chartreuse','Rum','Last Riff'],glass:'coupe',color:'#b8c040',garnish:'lime wheel'},
 {id:21,cat:'dry',name:'Trinidad Especial',desc:'Created by Valentino Bolognese, Angostura European Cocktail Competition, Paris 2008.',ing:'1 oz Angostura Bitters, 1/2 oz Pisco, 1 oz Orgeat, 2/3 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Bitters'],glass:'coupe',color:'#6a1808',garnish:'lime wheel'},
@@ -671,9 +722,9 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:43,cat:'chartreuse',name:'Champs-Elysees',desc:'A 1920s French classic, refined Sidecar variation.',ing:'2 oz Cognac, 3/4 oz Lemon, 1/2 oz Green Chartreuse, 1/4 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['Chartreuse','Cognac','Bitters'],glass:'coupe',color:'#ffc677',garnish:'lemon twist'},
 {id:44,cat:'chartreuse',name:'Last Oaxacan',desc:'Mezcal riff on the Last Word.',ing:'3/4 oz Mezcal, 3/4 oz Green Chartreuse, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a chilled coupe. Garnish with a cherry.',tags:['Chartreuse','Dry','Mezcal','Last Riff'],glass:'coupe',color:'#80a828',garnish:'cherry'},
 {id:45,cat:'chartreuse',name:'Final Ward',desc:'Riff on the Last Word - rye and lemon.',ing:'3/4 oz Rye Whiskey, 3/4 oz Green Chartreuse, 3/4 oz Maraschino Liqueur, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe. Garnish with lemon peel.',tags:['Chartreuse','Dry','Whiskey','Last Riff'],glass:'coupe',color:'#90b038',garnish:'lemon twist'},
-{id:50,cat:'espresso',name:'Carajillo',desc:'Spirit is optional.',ing:'1 oz Reposado Tequila, 1 oz Licor 43, 1.5 oz Espresso',method:'Build in a glass over ice. Pour Licor 43, then tequila, then espresso.',tags:['Espresso','Tequila','Liqueurs'],glass:'rocks',color:'#3c2010',garnish:'orange twist'},
-{id:51,cat:'espresso',name:'Coffee Date',desc:'Created by @thelittle.ghost.',ing:'6 oz Cold Brew, 2 oz Date Milk Foam',method:'Build in a chilled glass over ice. Top with date foam.',tags:['Espresso'],glass:'highball',color:'#2a1606',garnish:'espresso beans'},
-{id:52,cat:'espresso',name:'Midnight Chai',desc:'SoHo House Paris.',ing:"1.5 oz Zacapa Rum, 1 oz Espresso, 1/4 oz Bailey's, 3/4 oz Chai, 1/2 oz Cinnamon Syrup",method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'rocks',color:'#3c2010',garnish:'espresso beans'},
+{id:50,cat:'espresso',name:'Carajillo',desc:'Spirit is optional.',ing:'1 oz Reposado Tequila, 1 oz Licor 43, 1.5 oz Espresso',method:'Build in a glass over ice. Pour Licor 43, then tequila, then espresso.',tags:['Espresso','Tequila','Liqueurs'],glass:'rocks',color:'#341208',garnish:'orange twist'},
+{id:51,cat:'espresso',name:'Coffee Date',desc:'Created by @thelittle.ghost.',ing:'6 oz Cold Brew, 2 oz Date Milk Foam',method:'Build in a chilled glass over ice. Top with date foam.',tags:['Espresso'],glass:'rocks',color:'#2a1606',garnish:'cold foam'},
+{id:52,cat:'espresso',name:'Midnight Chai',desc:'SoHo House Paris.',ing:"1.5 oz Zacapa Rum, 1 oz Espresso, 1/4 oz Bailey's, 3/4 oz Chai, 1/2 oz Cinnamon Syrup",method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'rocks',color:'#341208',garnish:'espresso beans'},
 {id:53,cat:'espresso',name:'Salgamos',desc:'',ing:'1 oz Oloroso Sherry, 1/2 oz Puerto Rican Rum, 3/4 oz Orgeat, 1 oz Espresso',method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'coupe',color:'#381808',garnish:'espresso beans'},
 {id:54,cat:'espresso',name:'Espresso Martini',desc:'By @notjustabartender.',ing:'1.5 oz Rum or Tequila, 1.5 oz Espresso, 3/4 oz Coffee Liqueur, 1/4 oz Simple Syrup, 1 pinch Salt',method:'Shake all very hard with ice. Double strain into a coupe. Garnish with 3 espresso beans.',tags:['Espresso','Rum','Tequila','Liqueurs'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
 {id:60,cat:'lastriffs',name:'Almost Famous',desc:'Overproof rum riff on the Naked & Famous.',ing:'1 oz Overproof Jamaican Rum, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Rum','Chartreuse'],glass:'coupe',color:'#cc6020',garnish:'lime wheel'},
@@ -733,7 +784,7 @@ var catCfg={
   chartreuse:{eye:'Chartreuse',title:'Chartreuse Cocktails',desc:'Made with Chartreuse — the alpine herbal liqueur that changes everything.'},
   espresso:{eye:'Espresso',title:'Espresso Cocktails',desc:'When the night needs to go a little longer.'},
   lastriffs:{eye:'Last Riffs',title:'Last Riffs',desc:'Spins on the classics. Same bones, new character.'},
-  gin:{eye:'By Spirit',title:'Gin',desc:'Botanical, bright, and endlessly expressive. The most interesting spirit in the bar.'},
+  gin:{eye:'By Spirit',title:'Gin',desc:'Botanical, bright, and endlessly expressive.'},
   mezcal:{eye:'By Spirit',title:'Mezcal',desc:'Smoke, depth, and complexity. Mezcal makes everything it touches more interesting.'},
   tequila:{eye:'By Spirit',title:'Tequila',desc:'Agave-forward and versatile — from bright and citrusy to deep and earthy.'},
   bourbon:{eye:'By Spirit',title:'Bourbon',desc:'Sweet oak, vanilla, and caramel backbone. American whiskey at its most approachable.'},
