@@ -310,7 +310,7 @@ textarea{resize:vertical;min-height:70px}
         <div class="fgrp"><label>Garnish</label>
           <select id="f-garnish">
             <option value="none">None</option><option value="lemon twist">Lemon Twist</option><option value="lime wheel">Lime Wheel</option>
-            <option value="orange twist">Orange Twist</option><option value="cherry">Cherry</option><option value="mint sprig">Mint Sprig</option>
+            <option value="orange twist">Orange Twist</option><option value="cherry">Cherry</option><option value="mint sprig">Mint Sprig</option><option value="rosemary">Rosemary Sprig</option>
             <option value="espresso beans">Espresso Beans</option><option value="cold foam">Cold Foam</option><option value="rose petal">Rose Petal</option><option value="grapefruit">Grapefruit</option>
           </select>
         </div>
@@ -582,6 +582,15 @@ function drawCocktail(glass,color,garnish,size){
   else if(gn==='cherry'){var cr=6*sc,chX=gRimX-cr-2*sc,chY=gRimY+cr+6*sc;garnishHTML='<circle cx="'+chX+'" cy="'+chY+'" r="'+cr+'" fill="#5c0a10" opacity="0.94"/><circle cx="'+(chX-cr*0.3)+'" cy="'+(chY-cr*0.38)+'" r="'+(cr*0.22)+'" fill="rgba(180,70,85,0.32)"/><path d="M'+chX+','+(chY-cr)+' Q'+(chX-10*sc)+','+(gRimY+2*sc)+' '+(chX-4*sc)+','+(gRimY-14*sc)+'" stroke="#285028" stroke-width="'+(1*sc)+'" fill="none" stroke-linecap="round"/>';}
   else if(gn==='mint sprig'){var mxS=gRimX-8*sc,myB=gRimY+3*sc;garnishHTML='<line x1="'+mxS+'" y1="'+myB+'" x2="'+(mxS-2*sc)+'" y2="'+(gRimY-20*sc)+'" stroke="#387840" stroke-width="'+(0.9*sc)+'" stroke-linecap="round"/><ellipse cx="'+(mxS-8*sc)+'" cy="'+(gRimY-14*sc)+'" rx="'+(5*sc)+'" ry="'+(7.5*sc)+'" fill="rgba(60,140,55,0.5)" transform="rotate(-22,'+(mxS-8*sc)+','+(gRimY-14*sc)+')" /><ellipse cx="'+(mxS-2*sc)+'" cy="'+(gRimY-20*sc)+'" rx="'+(4*sc)+'" ry="'+(6.5*sc)+'" fill="rgba(60,140,55,0.46)" transform="rotate(14,'+(mxS-2*sc)+','+(gRimY-20*sc)+')"/>';}
   else if(gn==='espresso beans'){garnishHTML='';}
+  else if(gn==='rosemary'){
+    var rsX=gRimX-6*sc,rsBot=gRimY+3*sc,rsTop=gRimY-26*sc;
+    garnishHTML='<line x1="'+rsX+'" y1="'+rsBot+'" x2="'+(rsX-3*sc)+'" y2="'+rsTop+'" stroke="#264d24" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
+    for(var ni=0;ni<7;ni++){
+      var t=(ni+0.5)/7,rnx=rsX+(rsX-3*sc-rsX)*t,rny=rsBot+(rsTop-rsBot)*t,nl=4.8*sc;
+      garnishHTML+='<line x1="'+rnx+'" y1="'+rny+'" x2="'+(rnx-nl)+'" y2="'+(rny+nl*0.15)+'" stroke="#264d24" stroke-width="'+(0.42*sc)+'" stroke-linecap="round"/>';
+      garnishHTML+='<line x1="'+rnx+'" y1="'+rny+'" x2="'+(rnx+nl*0.82)+'" y2="'+(rny+nl*0.2)+'" stroke="#2d5a2a" stroke-width="'+(0.42*sc)+'" stroke-linecap="round"/>';
+    }
+  }
   else if(gn==='rose petal'){garnishHTML='<ellipse cx="'+(gRimX-4*sc)+'" cy="'+(gRimY+5*sc)+'" rx="'+(8*sc)+'" ry="'+(5.5*sc)+'" fill="rgba(185,60,80,0.42)" stroke="rgba(185,60,80,0.72)" stroke-width="'+(0.8*sc)+'" transform="rotate(-28,'+(gRimX-4*sc)+','+(gRimY+5*sc)+')"/>';}
   else if(gn==='grapefruit'){var gr2=8.5*sc,gx2=gRimX,gy2=gRimY+gr2*0.55;garnishHTML='<circle cx="'+gx2+'" cy="'+gy2+'" r="'+gr2+'" fill="rgba(210,85,55,0.32)" stroke="#cc4838" stroke-width="'+(0.9*sc)+'"/><line x1="'+(gx2-gr2)+'" y1="'+gy2+'" x2="'+(gx2+gr2)+'" y2="'+gy2+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/><line x1="'+gx2+'" y1="'+(gy2-gr2)+'" x2="'+gx2+'" y2="'+(gy2+gr2)+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/>';}
   return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg">'+defs+bg+'<g filter="url(#sk'+uid+')" opacity="0.95">'+glassHTML+garnishHTML+'</g></svg>';
@@ -615,23 +624,34 @@ function computeProfile(c){
   pa+=ozOf('(?:(?:white|aged|jamaican|zacapa|puerto rican) rum|\\brum\\b)')*0.42;
   pa+=ozOf('overproof')*0.60;
   pa+=ozOf('angostura bitters')*0.447; // Angostura 44.7%
-  // Medium ABV ~25-35%
-  pa+=ozOf('(?:campari|amaro|benedictine|ancho reyes|primo aperitivo)')*0.28;
-  pa+=ozOf('(?:green chartreuse|yellow chartreuse|\\bchartreuse\\b)')*0.43;
+  pa+=ozOf('ancho reyes')*0.40; // Ancho Reyes 40% ABV
+  pa+=ozOf('benedictine')*0.40; // Bénédictine ~40% ABV — sweet herbal French liqueur
+  pa+=ozOf('green chartreuse')*0.55; // Green Chartreuse 55% ABV
+  pa+=ozOf('yellow chartreuse')*0.43; // Yellow Chartreuse 43% ABV
+  if(!/green chartreuse|yellow chartreuse/.test(ing))pa+=ozOf('\\bchartreuse\\b')*0.50; // generic, avoid double-count
+  // Medium ABV ~28-35%
+  pa+=ozOf('amaro nonino')*0.35; // Amaro Nonino 35% ABV
+  if(!/amaro nonino/.test(ing))pa+=ozOf('\\bamaro\\b')*0.28; // generic amaro, avoid double-count
+  pa+=ozOf('licor 43')*0.31; // Licor 43 31% ABV — not in the 0.20 group
+  pa+=ozOf('amaretto')*0.28; // Disaronno/amaretto 28% ABV — not in the 0.20 group
+  pa+=ozOf('campari')*0.25; // Campari 24–28.5% ABV, use 0.25
   pa+=ozOf('(?:cocchi|sweet vermouth|white vermouth|dry vermouth|vermouth)')*0.18;
   pa+=ozOf('(?:oloroso sherry|sherry)')*0.18;
-  // Lower ABV ~15-22%
+  // Lower ABV ~15-25%
   pa+=ozOf('(?:aperol)')*0.11;
-  pa+=ozOf('(?:licor 43|st\\.?\\s*germain|elderflower liqueur|maraschino liqueur|coffee liqueur|falernum|creme de|amaretto|cocchi americano)')*0.20;
+  pa+=ozOf("bailey")*0.17; // Bailey's Irish Cream 17% ABV
+  pa+=ozOf('primo aperitivo')*0.18; // Primo Aperitivo 18% ABV
+  pa+=ozOf('mr\\.?\\s*black')*0.25; // Mr. Black coffee liqueur 25% ABV
+  pa+=ozOf('(?:st\\.?\\s*germain|elderflower liqueur|maraschino liqueur|coffee liqueur|falernum|creme de|cocchi americano)')*0.20; // licor43/amaretto moved up
   // Scale to 0-10: 0.45oz pure alc = ~4, 0.9oz = ~7, 1.4oz+ = 10
   var strength=Math.min(10,Math.max(0,Math.round(pa/1.5*10)));
   // Enforce zero for known non-alcoholic
-  if(!/(mezcal|tequila|gin|bourbon|whiskey|rye|rum|cognac|pisco|bitters|campari|aperol|amaro|chartreuse|vermouth|liqueur|sherry|licor|drambuie|benedictine|amaretto|maraschino|elderflower|st\.?\s*germain|overproof)/.test(ing))strength=0;
+  if(!/(mezcal|tequila|gin|bourbon|whiskey|rye|rum|cognac|pisco|bitters|campari|aperol|amaro|chartreuse|vermouth|liqueur|sherry|licor|drambuie|benedictine|amaretto|maraschino|elderflower|st\.?\s*germain|overproof|ancho reyes|bailey|primo aperitivo|mr\.?\s*black)/.test(ing))strength=0;
   // Sweetness 0-10 (10=very sweet, 0=very dry/sour)
   var sw=3.5;
   if(/orgeat/.test(ing))sw+=2.2;
-  if(/simple syrup/.test(ing))sw+=1.4;
-  if(/demerara syrup/.test(ing))sw+=1.2;
+  if(/simple syrup|gum syrup/.test(ing))sw+=1.5; // Carl uses Liber & Co gum syrup — richer/silkier than basic simple
+  if(/demerara syrup/.test(ing))sw+=1.5; // richer/more caramel than simple syrup
   if(/agave nectar/.test(ing))sw+=1.0;
   if(/passionfruit/.test(ing))sw+=2.0;
   if(/pineapple/.test(ing))sw+=1.5;
@@ -639,16 +659,24 @@ function computeProfile(c){
   if(/amaretto/.test(ing))sw+=2.5;
   if(/licor 43/.test(ing))sw+=1.5;
   if(/st\.?\s*germain|elderflower/.test(ing))sw+=1.0;
-  if(/coffee liqueur/.test(ing))sw+=1.0;
+  if(/mr\.?\s*black/.test(ing)){sw+=ozOf('mr\\.?\\s*black')*0.8;}else if(/coffee liqueur/.test(ing))sw+=1.0; // Mr. Black is less sweet than generic coffee liqueur
   if(/hibiscus syrup/.test(ing))sw+=0.8;
   if(/ginger syrup/.test(ing))sw+=0.5;
-  if(/cinnamon syrup/.test(ing))sw+=0.8;
+  if(/cinnamon syrup/.test(ing))sw+=1.0; // Liber & Co cinnamon uses demerara — richer than a basic cinnamon syrup
   if(/chocolate syrup/.test(ing))sw+=2.2;
   if(/honey syrup/.test(ing))sw+=1.0;
   if(/rose syrup/.test(ing))sw+=0.8;
   if(/falernum/.test(ing))sw+=1.2;
   if(/maraschino liqueur/.test(ing))sw+=0.5;
   if(/apricot liqueur/.test(ing))sw+=1.2;
+  sw+=ozOf('ancho reyes')*1.4; // sweet, smoky, spicy — scales with oz
+  sw+=ozOf("bailey")*5.0; // very sweet creamy liqueur — scales with oz (1/4oz ≈ +1.25)
+  if(/monkey shoulder/.test(ing))sw+=0.6; // notably sweet Speyside character vs standard whiskey
+  if(/benedictine/.test(ing))sw+=1.4; // honey, citrus, warm spices — quite sweet
+  if(/drambuie/.test(ing))sw+=1.4; // heather honey, herbal sweetness
+  sw+=ozOf('yellow chartreuse')*0.7; // sweeter than green — honey, citrus, saffron notes
+  if(/amaro nonino/.test(ing))sw+=0.5; // less bitter than typical amaro, orange-forward
+  if(/primo aperitivo/.test(ing))sw-=0.4; // bittersweet aperitivo, net drying
   // Dry/sour reducers — weight by approximate oz
   var limeOz=ozOf('lime')||(/lime/.test(ing)?0.5:0);
   var lemonOz=ozOf('lemon')||(/lemon/.test(ing)?0.5:0);
