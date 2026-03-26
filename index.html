@@ -221,11 +221,9 @@ textarea{resize:vertical;min-height:70px}
     <a onclick="showCat('espresso')"><span class="ic">&#9749;</span>Espresso</a>
     <a onclick="showCat('lastriffs')"><span class="ic">&#8635;</span>Last Riffs</a>
     <div class="nav-lbl">By Spirit</div>
-    <a onclick="showCat('bitters')"><span class="ic">&middot;</span>Bitters</a>
     <a onclick="showCat('bourbon')"><span class="ic">&middot;</span>Bourbon</a>
     <a onclick="showCat('cognac')"><span class="ic">&middot;</span>Cognac &amp; Pisco</a>
     <a onclick="showCat('gin')"><span class="ic">&middot;</span>Gin</a>
-    <a onclick="showCat('liqueurs')"><span class="ic">&middot;</span>Liqueurs</a>
     <a onclick="showCat('mezcal')"><span class="ic">&middot;</span>Mezcal</a>
     <a onclick="showCat('rum')"><span class="ic">&middot;</span>Rum</a>
     <a onclick="showCat('tequila')"><span class="ic">&middot;</span>Tequila</a>
@@ -760,7 +758,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:51,cat:'espresso',name:'Coffee Date',desc:'Created by @thelittle.ghost.',ing:'6 oz Cold Brew, 2 oz Date Milk Foam',method:'Build in a chilled glass over ice. Top with date foam.',tags:['Espresso'],glass:'rocks',color:'#2a1606',garnish:'cold foam'},
 {id:52,cat:'espresso',name:'Midnight Chai',desc:'SoHo House Paris.',ing:"1.5 oz Zacapa Rum, 1 oz Espresso, 1/4 oz Bailey's, 3/4 oz Chai, 1/2 oz Cinnamon Syrup",method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'rocks',color:'#341208',garnish:'espresso beans'},
 {id:53,cat:'espresso',name:'Salgamos',desc:'Sherry and espresso have no business working this well together. The orgeat is the bridge.',ing:'1 oz Oloroso Sherry, 1/2 oz Puerto Rican Rum, 3/4 oz Orgeat, 1 oz Espresso',method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'coupe',color:'#381808',garnish:'espresso beans'},
-{id:54,cat:'espresso',name:'Espresso Martini',desc:'By @notjustabartender.',ing:'1.5 oz Rum or Tequila, 1.5 oz Espresso, 3/4 oz Coffee Liqueur, 1/4 oz Simple Syrup, 1 pinch Salt',method:'Shake all very hard with ice. Double strain into a coupe. Garnish with 3 espresso beans.',tags:['Espresso','Rum','Tequila','Liqueurs'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
+{id:54,cat:'espresso',name:'Espresso Martini',desc:'By @notjustabartender.',ing:'1.5 oz Rum or Tequila, 1.5 oz Espresso, 3/4 oz Mr. Black, 1/4 oz Simple Syrup, 1 pinch Salt',method:'Shake all very hard with ice. Double strain into a coupe. Garnish with 3 espresso beans.',tags:['Espresso','Rum','Tequila','Liqueurs'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
 {id:60,cat:'lastriffs',name:'Almost Famous',desc:'Overproof rum riff on the Naked & Famous.',ing:'1 oz Overproof Jamaican Rum, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Rum','Chartreuse'],glass:'coupe',color:'#cc6020',garnish:'lime wheel'},
 {id:61,cat:'lastriffs',name:'Last Flight',desc:'Paper Plane riff with Green Chartreuse.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Green Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Bourbon','Chartreuse'],glass:'coupe',color:'#c09820',garnish:'lemon twist'},
 {id:62,cat:'lastriffs',name:'Not So Famous',desc:'Created by @onesipclub.',ing:'3/4 oz Mezcal, 3/4 oz Aperol, 3/4 oz Benedictine, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Mezcal'],glass:'coupe',color:'#d07030',garnish:'lime wheel'},
@@ -837,7 +835,7 @@ function matchesCat(c,cat){
   var targets=catToTag[cat]||[];
   return(c.tags||[]).some(function(t){return targets.indexOf(t.toLowerCase())>=0;});
 }
-var navOrder=['all','favorites','dry','sweet','chartreuse','espresso','lastriffs','bitters','bourbon','cognac','gin','liqueurs','mezcal','rum','tequila','whiskey'];
+var navOrder=['all','favorites','dry','sweet','chartreuse','espresso','lastriffs','bourbon','cognac','gin','mezcal','rum','tequila','whiskey'];
 function showCat(cat){
   curCat=cat;searchQ='';
   document.getElementById('search-input').value='';
