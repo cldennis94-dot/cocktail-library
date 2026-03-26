@@ -20,11 +20,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .brand-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;font-style:italic;color:var(--yell);letter-spacing:.02em;line-height:1.1}
 .brand-sub{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
 nav{flex:1;padding:12px 0;overflow-y:auto}
-.nav-lbl{font-size:7.5px;letter-spacing:.26em;text-transform:uppercase;color:rgba(212,211,24,.32);padding:0 20px;margin:14px 0 4px}
-nav a{display:flex;align-items:center;gap:9px;padding:7px 20px;text-decoration:none;color:var(--dim);font-size:12px;letter-spacing:.03em;border-left:2px solid transparent;transition:all .15s;cursor:pointer;font-weight:300}
+.nav-lbl{font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(212,211,24,.52);padding:0 22px;margin:20px 0 6px;display:flex;align-items:center;gap:10px}
+.nav-lbl::after{content:'';flex:1;height:1px;background:rgba(212,211,24,.13)}
+nav a{display:flex;align-items:center;padding:8px 22px;text-decoration:none;color:var(--dim);font-size:13px;letter-spacing:.04em;border-left:2px solid transparent;transition:all .15s;cursor:pointer;font-weight:300}
 nav a:hover{color:var(--cream);background:rgba(212,211,24,.04)}
 nav a.active{color:var(--yell);border-left-color:var(--yell);background:rgba(212,211,24,.06)}
-nav a .ic{font-size:11px;opacity:.55;width:14px;text-align:center;flex-shrink:0}
+nav a .ic{display:none}
 .sb-foot{padding:12px 20px;border-top:1px solid rgba(212,211,24,.07);display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--dim)}
 #admin-btn{font-size:9px;color:var(--dim);background:none;border:1px solid rgba(212,211,24,.16);padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:.07em;transition:all .16s}
 #admin-btn:hover{border-color:var(--yell);color:var(--yell)}
@@ -71,8 +72,8 @@ nav a .ic{font-size:11px;opacity:.55;width:14px;text-align:center;flex-shrink:0}
 #modal-bg.open{display:flex}
 #modal{background:var(--bg2);border:1px solid rgba(212,211,24,.14);border-radius:13px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto;position:relative;animation:mIn .26s cubic-bezier(.4,0,.2,1)}
 @keyframes mIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
-.m-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.38);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:2;line-height:1}
-.m-close:hover{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.55)}
+.m-close{position:absolute;top:12px;right:12px;background:var(--bg);border:1.5px solid rgba(212,211,24,.42);color:var(--yell);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:2;line-height:1}
+.m-close:hover{background:#161c12;border-color:rgba(212,211,24,.7)}
 .m-img{width:100%;height:240px;background:#f4ede3;border-radius:11px 11px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .m-img svg{width:100%;height:100%}
 .m-body{padding:24px 26px 28px}
@@ -361,16 +362,28 @@ function drawCocktail(glass,color,garnish,size){
     html+='<line x1="'+(foamX+foamW*0.35)+'" y1="'+(foamY+foamH*0.78)+'" x2="'+(foamX+foamW*0.72)+'" y2="'+(foamY+foamH*0.22)+'" stroke="rgba(115,62,18,0.15)" stroke-width="'+(foamH*0.1)+'" stroke-linecap="round"/>';
     // Foam surface sheen line at top edge
     html+='<line x1="'+(foamX+foamW*0.08)+'" y1="'+(foamY+foamH*0.14)+'" x2="'+(foamX+foamW*0.58)+'" y2="'+(foamY+foamH*0.1)+'" stroke="rgba(255,230,175,0.38)" stroke-width="'+(0.7*sc)+'" stroke-linecap="round"/>';
-    // 3 espresso beans — classic triangle arrangement on foam
-    var bY=foamY+foamH*0.52;
-    var bRx=3.8*sc,bRy=5.5*sc;
-    var offsets=[-11*sc,0,11*sc];
-    for(var bi=0;bi<3;bi++){
-      var bx=cx+offsets[bi];
-      html+='<ellipse cx="'+bx+'" cy="'+bY+'" rx="'+bRx+'" ry="'+bRy+'" fill="#1a0b05" stroke="rgba(55,22,8,0.7)" stroke-width="'+(0.6*sc)+'" clip-path="url(#'+clipId+')" />';
-      html+='<line x1="'+bx+'" y1="'+(bY-bRy*0.85)+'" x2="'+bx+'" y2="'+(bY+bRy*0.85)+'" stroke="rgba(55,22,8,0.55)" stroke-width="'+(0.4*sc)+'" />';
-      // tiny sheen on each bean
-      html+='<ellipse cx="'+(bx-bRx*0.3)+'" cy="'+(bY-bRy*0.35)+'" rx="'+(bRx*0.35)+'" ry="'+(bRy*0.22)+'" fill="rgba(80,40,16,0.45)" clip-path="url(#'+clipId+')" />';
+    // 3 espresso beans — scattered on foam at different angles, like a real pour
+    var bRx=4.2*sc,bRy=7*sc;
+    var beans=[
+      {x:cx-12*sc, y:foamY+foamH*0.48, rot:-42},
+      {x:cx+1.5*sc,y:foamY+foamH*0.56, rot:14},
+      {x:cx+13*sc, y:foamY+foamH*0.46, rot:40}
+    ];
+    for(var bi=0;bi<beans.length;bi++){
+      var bx=beans[bi].x,by=beans[bi].y,rot=beans[bi].rot;
+      var tr='rotate('+rot+','+bx+','+by+')';
+      // Soft drop shadow — offset slightly, blurred feel via opacity
+      html+='<ellipse transform="'+tr+'" cx="'+(bx+0.9*sc)+'" cy="'+(by+1.5*sc)+'" rx="'+bRx+'" ry="'+bRy+'" fill="rgba(0,0,0,0.28)" clip-path="url(#'+clipId+')"/>';
+      // Bean body — dark roast brown
+      html+='<ellipse transform="'+tr+'" cx="'+bx+'" cy="'+by+'" rx="'+bRx+'" ry="'+bRy+'" fill="#2c1208" clip-path="url(#'+clipId+')"/>';
+      // Subtle warm edge — gives depth without hard stroke
+      html+='<ellipse transform="'+tr+'" cx="'+bx+'" cy="'+by+'" rx="'+bRx+'" ry="'+bRy+'" fill="none" stroke="rgba(100,42,12,0.5)" stroke-width="'+(0.7*sc)+'" clip-path="url(#'+clipId+')"/>';
+      // Center crease — the defining groove of a coffee bean
+      html+='<line transform="'+tr+'" x1="'+bx+'" y1="'+(by-bRy*0.78)+'" x2="'+bx+'" y2="'+(by+bRy*0.78)+'" stroke="#120604" stroke-width="'+(0.65*sc)+'" stroke-linecap="round"/>';
+      // Highlight — left-upper quadrant catches the light
+      html+='<ellipse transform="'+tr+'" cx="'+(bx-bRx*0.32)+'" cy="'+(by-bRy*0.3)+'" rx="'+(bRx*0.48)+'" ry="'+(bRy*0.3)+'" fill="rgba(115,55,20,0.55)" clip-path="url(#'+clipId+')"/>';
+      // Tiny specular dot
+      html+='<ellipse transform="'+tr+'" cx="'+(bx-bRx*0.38)+'" cy="'+(by-bRy*0.38)+'" rx="'+(bRx*0.16)+'" ry="'+(bRy*0.1)+'" fill="rgba(185,110,55,0.4)" clip-path="url(#'+clipId+')"/>';
     }
     return html;
   }
@@ -580,7 +593,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:3,cat:'favorites',name:'Paper Plane',desc:'Created by Samuel Ross, 2008, Violet Hour, Chicago.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Amaro Nonino, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Bourbon','Dry','Last Riff'],glass:'coupe',color:'#d07030',garnish:'lemon twist'},
 {id:4,cat:'favorites',name:'Naked & Famous',desc:'Created in 2011 by Joaquin Simo at Death & Company, New York.',ing:'3/4 oz Mezcal, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Mezcal','Chartreuse'],glass:'coupe',color:'#d86830',garnish:'lime wheel'},
 {id:5,cat:'favorites',name:'Joy',desc:'Created by @_thebarre_ in memory of his late Aunt Joy.',ing:'1.5 oz Mezcal, 3/4 oz Lime, 1/2 oz Campari, 1/2 oz Orgeat, 1 pinch Salt, 1 dash Orange Blossom Water',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Mezcal','Dry'],glass:'coupe',color:'#c83020',garnish:'none'},
-{id:6,cat:'favorites',name:'Cafe Ango I',desc:'Created by @verygooddrinks. Spice and intensity.',ing:'1 oz Angostura Bitters, 1 oz Licor 43, 1 oz Ancho Reyes, 2 oz Espresso',method:'Add all to a shaker with ice. Shake hard, briefly. Single strain into a coupe.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#3a1a08',garnish:'espresso beans'},
+{id:6,cat:'favorites',name:'Cafe Ango I',desc:'Created by @verygooddrinks. Spice and intensity.',ing:'1 oz Angostura Bitters, 1 oz Licor 43, 1 oz Ancho Reyes, 2 oz Espresso',method:'Add all to a shaker with ice. Shake hard, briefly. Single strain into a coupe.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#341608',garnish:'espresso beans'},
 {id:7,cat:'favorites',name:'Cafe Ango II',desc:'Created by @verygooddrinks.',ing:'1/2 oz Angostura Bitters, 1/2 oz Licor 43, 1/2 oz Ancho Reyes, 2 oz Espresso',method:'Single strain into a coupe or Nick & Nora.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#341608',garnish:'espresso beans'},
 {id:8,cat:'favorites',name:'Trinidad Sour',desc:'Created by Giuseppe Gonzalez at Clover Club Bar, Brooklyn, 2009.',ing:'1.5 oz Angostura Bitters, 3/4 oz Lemon, 3/4 oz Orgeat, 1/2 oz Rye Whiskey',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Dry','Bitters','Whiskey'],glass:'coupe',color:'#6a1808',garnish:'none'},
 {id:9,cat:'favorites',name:'Splendid Isolation',desc:'Snack Bar, Minneapolis.',ing:'2 oz Mezcal, 1 oz Lime, 3/4 oz Hibiscus Syrup, 1/2 oz Licor 43',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal'],glass:'rocks',color:'#d11342',garnish:'lime wheel'},
