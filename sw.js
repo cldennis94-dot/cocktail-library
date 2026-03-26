@@ -1,4 +1,4 @@
-const CACHE = 'wink-v1';
+const CACHE = 'wink-v2';
 const CORE = ['/', '/index.html', '/Brand Assets/Logo.png'];
 
 self.addEventListener('install', function(e) {
