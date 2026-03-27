@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Glass and the Hare — QR Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:#1e2419;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'DM Sans',sans-serif;
+  }
+  .card{
+    background:#f4ede3;
+    border-radius:4px;
+    padding:48px 52px 44px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:28px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.55);
+  }
+  .brand-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand-logo{
+    width:38px;
+    height:38px;
+    background:#1e2419;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .brand-logo img{
+    width:30px;
+    height:30px;
+    object-fit:contain;
+    filter:invert(1);
+    mix-blend-mode:screen;
+  }
+  .brand-words{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .brand-name{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-weight:300;
+    font-size:20px;
+    color:#1e2419;
+    line-height:1.1;
+    letter-spacing:0.01em;
+  }
+  .brand-sub{
+    font-size:10px;
+    font-weight:300;
+    color:#6b6355;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+  }
+  .divider{
+    width:100%;
+    height:1px;
+    background:rgba(30,36,25,0.12);
+  }
+  #qrcode{
+    line-height:0;
+  }
+  #qrcode canvas,
+  #qrcode img{
+    display:block;
+    border-radius:2px;
+  }
+  .url-label{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:15px;
+    font-weight:300;
+    color:#6b6355;
+    letter-spacing:0.04em;
+  }
+  .print-hint{
+    margin-top:32px;
+    font-size:11px;
+    font-weight:300;
+    color:#9a9488;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    text-align:center;
+  }
+  @media print{
+    body{background:#fff;}
+    .print-hint{display:none;}
+    .card{box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+<div>
+  <div class="card">
+    <div class="brand-top">
+      <div class="brand-logo">
+        <img src="Brand Assets/Logo.png" alt="">
+      </div>
+      <div class="brand-words">
+        <div class="brand-name">The Glass and the Hare</div>
+        <div class="brand-sub">Carl's Cocktail Library</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div id="qrcode"></div>
+    <div class="divider"></div>
+    <div class="url-label">glassandhare.com</div>
+  </div>
+  <div class="print-hint">Cmd + P to print &nbsp;·&nbsp; Right-click to save</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+new QRCode(document.getElementById('qrcode'),{
+  text:'https://glassandhare.com',
+  width:220,
+  height:220,
+  colorDark:'#1e2419',
+  colorLight:'#f4ede3',
+  correctLevel:QRCode.CorrectLevel.H
+});
+</script>
+</body>
+</html>
