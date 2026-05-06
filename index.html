@@ -110,6 +110,10 @@ nav a .ic{display:none}
 .ing-list li .amt{color:var(--yell);font-weight:400;font-size:11.5px}
 .m-method{font-size:12px;color:var(--dim);line-height:1.8}
 .m-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
+.m-share-row{margin-top:20px;display:flex;justify-content:center;}
+.m-share-btn{background:transparent;border:1px solid rgba(212,211,24,.2);color:var(--dim);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:8px 22px;border-radius:5px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px;}
+.m-share-btn:hover{border-color:var(--yell);color:var(--yell);}
+.m-share-btn.copied{border-color:var(--yell);color:var(--yell);}
 .m-profile{margin-top:0}
 .profile-meter{margin-bottom:16px}
 .meter-row{display:flex;justify-content:space-between;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
@@ -354,6 +358,12 @@ textarea{resize:vertical;min-height:70px}
       <div class="m-sec">Flavor Profile</div>
       <div class="m-profile" id="m-profile"></div>
       <div class="m-tags" id="m-tags"></div>
+      <div class="m-share-row">
+        <button class="m-share-btn" id="m-share-btn" onclick="shareM()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="10.5" cy="2.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><circle cx="10.5" cy="10.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><circle cx="2.5" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><line x1="4.2" y1="5.7" x2="8.9" y2="3.2" stroke="currentColor" stroke-width="1.1"/><line x1="4.2" y1="7.3" x2="8.9" y2="9.8" stroke="currentColor" stroke-width="1.1"/></svg>
+          Share
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -958,6 +968,21 @@ function surpriseMe(){var list=cocktails.filter(function(c){return matchesCat(c,
 function prevM(){if(curIdx>0){curIdx--;openM(curList[curIdx].id);}}
 function nextM(){if(curIdx<curList.length-1){curIdx++;openM(curList[curIdx].id);}}
 function closeM(){document.getElementById('modal-bg').classList.remove('open');document.body.style.overflow='';history.replaceState(null,'',location.pathname);}
+function shareM(){
+  var url=location.href;
+  var name=document.getElementById('m-name').textContent;
+  var btn=document.getElementById('m-share-btn');
+  if(navigator.share){
+    navigator.share({title:name+' — The Glass and the Hare',text:'Try this: '+name,url:url});
+  } else {
+    navigator.clipboard.writeText(url).then(function(){
+      btn.classList.add('copied');btn.querySelector('span')||btn.childNodes;
+      var orig=btn.innerHTML;
+      btn.innerHTML='<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,7 5,10 11,3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!';
+      setTimeout(function(){btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+    });
+  }
+}
 document.getElementById('modal-bg').addEventListener('click',function(e){if(e.target===this)closeM();});
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){closeM();closeLogin();}
