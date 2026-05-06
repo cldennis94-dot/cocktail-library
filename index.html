@@ -1024,6 +1024,14 @@ document.getElementById('save-btn').onclick=function(){
 function deleteC(id){var c=cocktails.find(function(x){return x.id===id;});if(!c||!confirm('Delete "'+c.name+'"?'))return;cocktails=cocktails.filter(function(x){return x.id!==id;});persist();renderAdminList();}
 function toggleSb(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');}
 function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+// Data migrations: fix specific fields that may be stale in localStorage
+(function(){
+  var dirty=false;
+  cocktails.forEach(function(c){
+    if(c.id===1778041719617&&c.garnish!=='chili'){c.garnish='chili';dirty=true;}
+  });
+  if(dirty)persist();
+})();
 showCat('all');
 // Deep link: open cocktail from URL hash on load
 (function(){var h=location.hash.slice(1);if(!h)return;var m=cocktails.find(function(c){return slugify(c.name)===h;});if(m){curList=cocktails;openM(m.id);}})();
