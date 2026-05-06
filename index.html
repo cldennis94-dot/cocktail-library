@@ -1024,11 +1024,24 @@ document.getElementById('save-btn').onclick=function(){
 function deleteC(id){var c=cocktails.find(function(x){return x.id===id;});if(!c||!confirm('Delete "'+c.name+'"?'))return;cocktails=cocktails.filter(function(x){return x.id!==id;});persist();renderAdminList();}
 function toggleSb(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');}
 function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
-// Data migrations: fix specific fields that may be stale in localStorage
+// Data migrations: sync edited cocktails across devices via localStorage
 (function(){
+  var updates={
+    1778041719617:{
+      ing:'2 oz Mezcal (or Tequila), 3/4 oz Agave (or Honey), 1 oz Lime, Chili pepper (1/4 inch), 10 cilantro leaves',
+      method:'Cut the small piece of chili and press it with a muddler into the bottom of your cocktail shaker. Then, add in your cilantro, agave, lime juice, and spirit. Fill the shaker with cubed ice. Strain into a rocks glass. Garnish with a chili top and serve.',
+      desc:'SoHo House.',
+      garnish:'chili',
+      tags:['House Favorite','Mezcal','Tequila']
+    }
+  };
   var dirty=false;
   cocktails.forEach(function(c){
-    if(c.id===1778041719617&&c.garnish!=='chili'){c.garnish='chili';dirty=true;}
+    var u=updates[c.id];
+    if(!u)return;
+    Object.keys(u).forEach(function(k){
+      if(JSON.stringify(c[k])!==JSON.stringify(u[k])){c[k]=u[k];dirty=true;}
+    });
   });
   if(dirty)persist();
 })();
