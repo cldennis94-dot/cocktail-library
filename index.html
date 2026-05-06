@@ -39,8 +39,8 @@ nav a .ic{display:none}
 #admin-btn:hover{border-color:var(--yell);color:var(--yell)}
 #main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
 #topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-bottom:1px solid rgba(212,211,24,.08);position:sticky;top:0;z-index:90;gap:10px}
-#burger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;flex-shrink:0}
-#burger span{display:block;width:21px;height:1.5px;background:var(--cream);transition:all .3s}
+#burger{background:rgba(212,211,24,.08);border:1px solid rgba(212,211,24,.28);border-radius:7px;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:8px 10px;flex-shrink:0}
+#burger span{display:block;width:22px;height:2px;background:var(--yell);border-radius:2px;transition:all .3s}
 .topbar-brand{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
 .topbar-brand img{width:26px;height:26px;object-fit:contain;filter:invert(1) sepia(.3) saturate(.5) brightness(1.4);mix-blend-mode:screen}
 .topbar-brand span{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--yell);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -456,99 +456,119 @@ function drawCocktail(glass,color,garnish,size){
     html+='<line x1="'+(foamX+foamW*0.1)+'" y1="'+(foamY+foamH*0.12)+'" x2="'+(foamX+foamW*0.62)+'" y2="'+(foamY+foamH*0.09)+'" stroke="rgba(255,255,255,0.72)" stroke-width="'+(0.65*sc)+'" stroke-linecap="round"/>';
     return html;
   }
+  // Realistic ice block helper: shadow + translucent body + crack lines + bright entry edge + specular spot
+  function iceBlock(clipId,ix,iy,iw,ih,rot){
+    var trCx=ix+iw*0.5,trCy=iy+ih*0.5;
+    var tr=rot?'rotate('+rot+','+trCx+','+trCy+')':'';
+    var a=tr?'transform="'+tr+'" ':'',html='';
+    html+='<rect '+a+'x="'+(ix+1.8*sc)+'" y="'+(iy+2.5*sc)+'" width="'+iw+'" height="'+ih+'" rx="'+(2.2*sc)+'" fill="rgba(0,0,0,0.13)" clip-path="url(#'+clipId+')" />';
+    html+='<rect '+a+'x="'+ix+'" y="'+iy+'" width="'+iw+'" height="'+ih+'" rx="'+(2.2*sc)+'" fill="rgba(215,235,255,0.16)" stroke="rgba(200,228,255,0.60)" stroke-width="'+(0.7*sc)+'" clip-path="url(#'+clipId+')" />';
+    html+='<line '+a+'x1="'+(ix+iw*0.22)+'" y1="'+(iy+ih*0.06)+'" x2="'+(ix+iw*0.72)+'" y2="'+(iy+ih*0.78)+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(0.48*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
+    html+='<line '+a+'x1="'+(ix+iw*0.60)+'" y1="'+(iy+ih*0.08)+'" x2="'+(ix+iw*0.28)+'" y2="'+(iy+ih*0.65)+'" stroke="rgba(255,255,255,0.17)" stroke-width="'+(0.4*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
+    html+='<line '+a+'x1="'+ix+'" y1="'+(iy+ih*0.12)+'" x2="'+(ix+iw*0.52)+'" y2="'+iy+'" stroke="rgba(255,255,255,0.80)" stroke-width="'+(0.7*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
+    html+='<ellipse '+a+'cx="'+(ix+iw*0.2)+'" cy="'+(iy+ih*0.22)+'" rx="'+(iw*0.1)+'" ry="'+(ih*0.08)+'" fill="rgba(255,255,255,0.50)" clip-path="url(#'+clipId+')" />';
+    return html;
+  }
   if(g==='coupe'){
-    var rimW=33*sc,rimY=cy-44*sc,bowlBotY=cy+12*sc;
-    // Espresso drinks: fill nearly to the brim (6*sc below rim) so foam sits just inside glass
-    var liqY=gn==='espresso beans'?cy-37*sc:cy-8*sc;
-    var bellyW=50*sc;
+    var rimW=43*sc,rimY=cy-44*sc,bowlBotY=cy+12*sc;
+    var liqY=gn==='espresso beans'?cy-37*sc:cy-22*sc;
     var clipId='cl'+uid;
-    // Nick & Nora shape: belly wider than rim, curves inward to narrow mouth
-    var bowlPath='M'+(cx-rimW)+','+rimY+' C'+(cx-bellyW)+','+(rimY+18*sc)+' '+(cx-18*sc)+','+(bowlBotY-4*sc)+' '+cx+','+bowlBotY+' C'+(cx+18*sc)+','+(bowlBotY-4*sc)+' '+(cx+bellyW)+','+(rimY+18*sc)+' '+(cx+rimW)+','+rimY;
+    // True coupe: widest at rim, curves gracefully inward to stem point
+    var bowlPath='M'+(cx-rimW)+','+rimY+
+      ' C'+(cx-rimW)+','+(rimY+30*sc)+
+      ' '+(cx-8*sc)+','+(bowlBotY-3*sc)+
+      ' '+cx+','+bowlBotY+
+      ' C'+(cx+8*sc)+','+(bowlBotY-3*sc)+
+      ' '+(cx+rimW)+','+(rimY+30*sc)+
+      ' '+(cx+rimW)+','+rimY;
     glassHTML+='<clipPath id="'+clipId+'"><path d="'+bowlPath+' Z"/></clipPath>';
-    glassHTML+='<path d="'+bowlPath+' Z" fill="rgba(245,238,228,0.22)"/>';
-    glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId+')"/>';
-    glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipId+')"/>';
-    glassHTML+='<rect x="'+(cx-bellyW-4*sc)+'" y="'+liqY+'" width="'+(bellyW*2+8*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId+')"/>';
-    glassHTML+='<line x1="'+(cx-bellyW)+'" y1="'+liqY+'" x2="'+(cx+bellyW)+'" y2="'+liqY+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
+    glassHTML+='<path d="'+bowlPath+' Z" fill="rgba(220,232,252,0.06)"/>';
+    glassHTML+='<rect x="'+(cx-rimW-2*sc)+'" y="'+liqY+'" width="'+(rimW*2+4*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId+')"/>';
+    glassHTML+='<rect x="'+(cx-rimW-2*sc)+'" y="'+liqY+'" width="'+(rimW*2+4*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipId+')"/>';
+    glassHTML+='<rect x="'+(cx-rimW-2*sc)+'" y="'+liqY+'" width="'+(rimW*2+4*sc)+'" height="'+(bowlBotY-liqY+4*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId+')"/>';
+    // Curved meniscus: liquid pulls slightly up at the glass walls
+    glassHTML+='<path d="M'+(cx-rimW*0.84)+','+liqY+' Q'+cx+','+(liqY+2.5*sc)+' '+(cx+rimW*0.84)+','+liqY+'" stroke="'+meniscusColor+'" stroke-width="'+(0.65*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId+')" />';
     if(gn==='espresso beans'){
-      // Fixed foam height — looks like ~8mm of crema on a real espresso martini
       var foamH=10*sc;
-      glassHTML+=espressoFoam(clipId,cx-bellyW-4*sc,liqY,bellyW*2+8*sc,foamH);
+      glassHTML+=espressoFoam(clipId,cx-rimW-2*sc,liqY,rimW*2+4*sc,foamH);
     }
     glassHTML+='<path d="'+bowlPath+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linecap="round"/>';
     glassHTML+='<line x1="'+(cx-rimW)+'" y1="'+rimY+'" x2="'+(cx+rimW)+'" y2="'+rimY+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
-    glassHTML+='<path d="M'+(cx-rimW*0.7)+','+(rimY+6*sc)+' Q'+(cx-bellyW*0.55)+','+(rimY+26*sc)+' '+(cx-18*sc)+','+(bowlBotY-10*sc)+'" stroke="rgba(255,255,255,0.45)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>';
-    var stemBotY=cy+56*sc;
-    glassHTML+='<line x1="'+cx+'" y1="'+bowlBotY+'" x2="'+cx+'" y2="'+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
-    glassHTML+='<path d="M'+(cx-20*sc)+','+stemBotY+' Q'+cx+','+(stemBotY+3*sc)+' '+(cx+20*sc)+','+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
+    // Inner-left wall reflection — main bright highlight
+    glassHTML+='<path d="M'+(cx-rimW*0.76)+','+(rimY+4*sc)+' C'+(cx-rimW*0.75)+','+(rimY+32*sc)+' '+(cx-9*sc)+','+(bowlBotY-7*sc)+' '+(cx-4*sc)+','+bowlBotY+'" stroke="rgba(255,255,255,0.44)" stroke-width="'+(1.5*sc)+'" fill="none" stroke-linecap="round"/>';
+    // Softer secondary highlight
+    glassHTML+='<path d="M'+(cx-rimW*0.54)+','+(rimY+7*sc)+' C'+(cx-rimW*0.50)+','+(rimY+24*sc)+' '+(cx-10*sc)+','+(bowlBotY-14*sc)+' '+(cx-5*sc)+','+(bowlBotY-5*sc)+'" stroke="rgba(255,255,255,0.18)" stroke-width="'+(0.9*sc)+'" fill="none" stroke-linecap="round"/>';
+    // Stem with subtle knob/node
+    var stemMidY=cy+33*sc,stemBotY=cy+58*sc;
+    glassHTML+='<line x1="'+cx+'" y1="'+bowlBotY+'" x2="'+cx+'" y2="'+(stemMidY-2.5*sc)+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<ellipse cx="'+cx+'" cy="'+stemMidY+'" rx="'+(3*sc)+'" ry="'+(2.5*sc)+'" fill="rgba(240,232,215,0.18)" stroke="'+ink+'" stroke-width="'+(0.7*sc)+'"/>';
+    glassHTML+='<line x1="'+cx+'" y1="'+(stemMidY+2.5*sc)+'" x2="'+cx+'" y2="'+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<path d="M'+(cx-22*sc)+','+stemBotY+' Q'+cx+','+(stemBotY+4*sc)+' '+(cx+22*sc)+','+stemBotY+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
   } else if(g==='rocks'){
     var tw=56*sc,th=56*sc,tx=cx-tw/2,ty=cy-th/2+4*sc;
-    // Cold foam: fill glass nearly to top so foam sits just inside rim
-    var liqY2=gn==='cold foam'?ty+th*0.08:ty+th*0.32;
+    var liqY2=gn==='cold foam'?ty+th*0.08:ty+th*0.28;
     var clipId2='cl'+uid;
     var outline='M'+(tx+3*sc)+','+ty+' L'+(tx+tw-3*sc)+','+ty+' L'+(tx+tw+2*sc)+','+(ty+th)+' L'+(tx-2*sc)+','+(ty+th)+' Z';
     glassHTML+='<clipPath id="'+clipId2+'"><path d="'+outline+'"/></clipPath>';
-    glassHTML+='<path d="'+outline+'" fill="rgba(245,238,228,0.2)"/>';
+    glassHTML+='<path d="'+outline+'" fill="rgba(220,232,252,0.06)"/>';
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipId2+')"/>';
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipId2+')"/>';
     glassHTML+='<rect x="'+(tx-3*sc)+'" y="'+liqY2+'" width="'+(tw+7*sc)+'" height="'+(ty+th-liqY2+3*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipId2+')"/>';
     if(gn==='cold foam'){
-      // Ice cube sits in the dark liquid, visible below foam
-      var iceSz=18*sc,iceX=cx-iceSz*0.5,iceY=liqY2+th*0.32;
-      glassHTML+='<rect x="'+iceX+'" y="'+iceY+'" width="'+iceSz+'" height="'+iceSz+'" rx="'+(2*sc)+'" fill="rgba(215,232,252,0.14)" stroke="rgba(210,228,250,0.38)" stroke-width="'+(0.55*sc)+'"/>';
-      glassHTML+='<line x1="'+(iceX+iceSz*0.14)+'" y1="'+(iceY+iceSz*0.1)+'" x2="'+(iceX+iceSz*0.58)+'" y2="'+(iceY+iceSz*0.06)+'" stroke="rgba(255,255,255,0.32)" stroke-width="'+(0.5*sc)+'" stroke-linecap="round"/>';
+      glassHTML+=iceBlock(clipId2,cx-10*sc,liqY2+th*0.32,20*sc,17*sc,0);
       var foamH3=th*0.18,blendH3=th*0.28;
       glassHTML+=coldFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,foamH3,blendH3);
     } else if(gn==='espresso beans'){
-      glassHTML+='<line x1="'+(tx+2*sc)+'" y1="'+liqY2+'" x2="'+(tx+tw-2*sc)+'" y2="'+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
-      var foamH3=th*0.2;
-      glassHTML+=espressoFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,foamH3);
+      glassHTML+='<path d="M'+(tx+2*sc)+','+liqY2+' Q'+cx+','+(liqY2+1.5*sc)+' '+(tx+tw-2*sc)+','+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.65*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
+      glassHTML+=espressoFoam(clipId2,tx-3*sc,liqY2,tw+7*sc,th*0.2);
     } else {
-      glassHTML+='<line x1="'+(tx+2*sc)+'" y1="'+liqY2+'" x2="'+(tx+tw-2*sc)+'" y2="'+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
-      var iceSz=20*sc,iceX=cx-iceSz*0.5,iceY=liqY2+5*sc;
-      glassHTML+='<rect x="'+iceX+'" y="'+iceY+'" width="'+iceSz+'" height="'+iceSz+'" rx="'+(2*sc)+'" fill="rgba(215,232,252,0.16)" stroke="rgba(210,228,250,0.44)" stroke-width="'+(0.55*sc)+'"/>';
-      glassHTML+='<line x1="'+(iceX+iceSz*0.14)+'" y1="'+(iceY+iceSz*0.1)+'" x2="'+(iceX+iceSz*0.58)+'" y2="'+(iceY+iceSz*0.06)+'" stroke="rgba(255,255,255,0.38)" stroke-width="'+(0.5*sc)+'" stroke-linecap="round"/>';
-      glassHTML+='<line x1="'+(iceX+iceSz*0.13)+'" y1="'+(iceY+iceSz*0.12)+'" x2="'+(iceX+iceSz*0.13)+'" y2="'+(iceY+iceSz*0.38)+'" stroke="rgba(255,255,255,0.22)" stroke-width="'+(0.45*sc)+'" stroke-linecap="round"/>';
+      glassHTML+='<path d="M'+(tx+2*sc)+','+liqY2+' Q'+cx+','+(liqY2+1.5*sc)+' '+(tx+tw-2*sc)+','+liqY2+'" stroke="'+meniscusColor+'" stroke-width="'+(0.65*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId2+')" />';
+      // Two ice cubes: back-left slightly behind, front-center dominant
+      glassHTML+=iceBlock(clipId2,cx-12*sc,liqY2+th*0.30,18*sc,14*sc,-6);
+      glassHTML+=iceBlock(clipId2,cx-1*sc,liqY2+th*0.12,21*sc,17*sc,4);
     }
     glassHTML+='<path d="'+outline+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round"/>';
     glassHTML+='<line x1="'+(tx+3*sc)+'" y1="'+ty+'" x2="'+(tx+tw-3*sc)+'" y2="'+ty+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
-    glassHTML+='<line x1="'+(tx+8*sc)+'" y1="'+(ty+4*sc)+'" x2="'+(tx+8*sc)+'" y2="'+(ty+th-7*sc)+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(tx+8*sc)+'" y1="'+(ty+4*sc)+'" x2="'+(tx+8*sc)+'" y2="'+(ty+th-7*sc)+'" stroke="rgba(255,255,255,0.30)" stroke-width="'+(1.5*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(tx+14*sc)+'" y1="'+(ty+4*sc)+'" x2="'+(tx+14*sc)+'" y2="'+(ty+th*0.38)+'" stroke="rgba(255,255,255,0.12)" stroke-width="'+(0.9*sc)+'" stroke-linecap="round"/>';
   } else if(g==='highball'){
     var twH=38*sc,thH=80*sc,txH=cx-twH/2,tyH=cy-thH/2-2*sc;
-    // Cold foam drinks: fill glass nearly to top so foam sits right at the surface
-    var liqYH=gn==='cold foam'?tyH+thH*0.06:tyH+thH*0.22;
+    var liqYH=gn==='cold foam'?tyH+thH*0.06:tyH+thH*0.18;
     var clipIdH='cl'+uid;
     glassHTML+='<clipPath id="'+clipIdH+'"><rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'"/></clipPath>';
-    glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="rgba(245,238,228,0.18)"/>';
+    glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="rgba(220,232,252,0.07)"/>';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdH+')"/>';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipIdH+')" />';
     glassHTML+='<rect x="'+txH+'" y="'+liqYH+'" width="'+twH+'" height="'+(tyH+thH-liqYH)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdH+')"/>';
-    glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+liqYH+'" x2="'+(txH+twH-2*sc)+'" y2="'+liqYH+'" stroke="'+meniscusColor+'" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipIdH+')" />';
+    glassHTML+='<path d="M'+(txH+2*sc)+','+liqYH+' Q'+cx+','+(liqYH+1.5*sc)+' '+(txH+twH-2*sc)+','+liqYH+'" stroke="'+meniscusColor+'" stroke-width="'+(0.65*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipIdH+')" />';
     if(gn==='espresso beans'){
-      var foamH4=thH*0.14;
-      glassHTML+=espressoFoam(clipIdH,txH,liqYH,twH,foamH4);
+      glassHTML+=espressoFoam(clipIdH,txH,liqYH,twH,thH*0.14);
     } else if(gn==='cold foam'){
-      var cfH=thH*0.18;
-      glassHTML+=coldFoam(clipIdH,txH,liqYH,twH,cfH);
+      glassHTML+=coldFoam(clipIdH,txH,liqYH,twH,thH*0.18);
+    } else {
+      var iwH=twH*0.58,ihH=twH*0.38;
+      glassHTML+=iceBlock(clipIdH,cx-iwH*0.7,liqYH+thH*0.06,iwH,ihH,-3);
+      glassHTML+=iceBlock(clipIdH,cx-iwH*0.05,liqYH+thH*0.13,iwH*0.82,ihH*0.85,5);
     }
     glassHTML+='<rect x="'+txH+'" y="'+tyH+'" width="'+twH+'" height="'+thH+'" rx="'+(2*sc)+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'"/>';
     glassHTML+='<line x1="'+(txH+2*sc)+'" y1="'+tyH+'" x2="'+(txH+twH-2*sc)+'" y2="'+tyH+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
     if(gn!=='espresso beans'&&gn!=='cold foam'){
       glassHTML+='<line x1="'+(cx+10*sc)+'" y1="'+(tyH-10*sc)+'" x2="'+(cx+13*sc)+'" y2="'+(tyH+thH-5*sc)+'" stroke="#c8c018" stroke-width="'+(2.2*sc)+'" stroke-linecap="round" opacity="0.7"/>';
     }
-    glassHTML+='<line x1="'+(txH+7*sc)+'" y1="'+(tyH+4*sc)+'" x2="'+(txH+7*sc)+'" y2="'+(tyH+thH-8*sc)+'" stroke="rgba(255,255,255,0.26)" stroke-width="'+(1.4*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(txH+7*sc)+'" y1="'+(tyH+4*sc)+'" x2="'+(txH+7*sc)+'" y2="'+(tyH+thH-8*sc)+'" stroke="rgba(255,255,255,0.28)" stroke-width="'+(1.5*sc)+'" stroke-linecap="round"/>';
+    glassHTML+='<line x1="'+(txH+13*sc)+'" y1="'+(tyH+4*sc)+'" x2="'+(txH+13*sc)+'" y2="'+(tyH+thH*0.4)+'" stroke="rgba(255,255,255,0.11)" stroke-width="'+(0.9*sc)+'" stroke-linecap="round"/>';
   } else if(g==='martini'){
     var rimWM=46*sc,rimYM=cy-30*sc,botYM=cy+18*sc,liqYM=cy+4*sc;
     var clipIdM='cl'+uid;
     glassHTML+='<clipPath id="'+clipIdM+'"><path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+' Z"/></clipPath>';
-    glassHTML+='<path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+' Z" fill="rgba(245,238,228,0.2)"/>';
+    glassHTML+='<path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+' Z" fill="rgba(220,232,252,0.06)"/>';
     glassHTML+='<rect x="'+(cx-rimWM-2*sc)+'" y="'+liqYM+'" width="'+(rimWM*2+4*sc)+'" height="'+(botYM-liqYM+2*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdM+')"/>';
     glassHTML+='<rect x="'+(cx-rimWM-2*sc)+'" y="'+liqYM+'" width="'+(rimWM*2+4*sc)+'" height="'+(botYM-liqYM+2*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipIdM+')" />';
     glassHTML+='<rect x="'+(cx-rimWM-2*sc)+'" y="'+liqYM+'" width="'+(rimWM*2+4*sc)+'" height="'+(botYM-liqYM+2*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdM+')"/>';
-    glassHTML+='<line x1="'+(cx-rimWM*0.5)+'" y1="'+liqYM+'" x2="'+(cx+rimWM*0.5)+'" y2="'+liqYM+'" stroke="rgba(255,255,255,0.24)" stroke-width="'+(0.6*sc)+'" stroke-linecap="round" clip-path="url(#'+clipIdM+')" />';
+    glassHTML+='<path d="M'+(cx-rimWM*0.5)+','+liqYM+' Q'+cx+','+(liqYM+1.5*sc)+' '+(cx+rimWM*0.5)+','+liqYM+'" stroke="rgba(255,255,255,0.24)" stroke-width="'+(0.6*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipIdM+')" />';
     glassHTML+='<path d="M'+(cx-rimWM)+','+rimYM+' L'+cx+','+botYM+' L'+(cx+rimWM)+','+rimYM+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round" stroke-linecap="round"/>';
     glassHTML+='<line x1="'+(cx-rimWM)+'" y1="'+rimYM+'" x2="'+(cx+rimWM)+'" y2="'+rimYM+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
-    glassHTML+='<path d="M'+(cx-rimWM*0.62)+','+(rimYM+5*sc)+' L'+(cx-rimWM*0.35)+','+(rimYM+22*sc)+'" stroke="rgba(255,255,255,0.38)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>';
+    glassHTML+='<path d="M'+(cx-rimWM*0.62)+','+(rimYM+5*sc)+' L'+(cx-rimWM*0.35)+','+(rimYM+22*sc)+'" stroke="rgba(255,255,255,0.40)" stroke-width="'+(1.2*sc)+'" fill="none" stroke-linecap="round"/>';
     var stBotYM=cy+58*sc;
     glassHTML+='<line x1="'+cx+'" y1="'+botYM+'" x2="'+cx+'" y2="'+stBotYM+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" stroke-linecap="round"/>';
     glassHTML+='<path d="M'+(cx-21*sc)+','+stBotYM+' Q'+cx+','+(stBotYM+3*sc)+' '+(cx+21*sc)+','+stBotYM+'" stroke="'+ink+'" stroke-width="'+(0.85*sc)+'" fill="none" stroke-linecap="round"/>';
@@ -557,7 +577,7 @@ function drawCocktail(glass,color,garnish,size){
     var clipIdS='cl'+uid;
     var outline2='M'+(txS+2*sc)+','+tyS+' L'+(txS+twS-2*sc)+','+tyS+' L'+(txS+twS+2*sc)+','+(tyS+thS)+' L'+(txS-2*sc)+','+(tyS+thS)+' Z';
     glassHTML+='<clipPath id="'+clipIdS+'"><path d="'+outline2+'"/></clipPath>';
-    glassHTML+='<path d="'+outline2+'" fill="rgba(245,238,228,0.2)"/>';
+    glassHTML+='<path d="'+outline2+'" fill="rgba(220,232,252,0.06)"/>';
     glassHTML+='<rect x="'+(txS-3*sc)+'" y="'+liqYS+'" width="'+(twS+8*sc)+'" height="'+(tyS+thS-liqYS+2*sc)+'" fill="'+rgba(c,fillOp)+'" clip-path="url(#'+clipIdS+')"/>';
     glassHTML+='<rect x="'+(txS-3*sc)+'" y="'+liqYS+'" width="'+(twS+8*sc)+'" height="'+(tyS+thS-liqYS+2*sc)+'" fill="url(#liqD'+uid+')" clip-path="url(#'+clipIdS+')" />';
     glassHTML+='<rect x="'+(txS-3*sc)+'" y="'+liqYS+'" width="'+(twS+8*sc)+'" height="'+(tyS+thS-liqYS+2*sc)+'" fill="url(#xh'+uid+')" clip-path="url(#'+clipIdS+')"/>';
@@ -566,7 +586,7 @@ function drawCocktail(glass,color,garnish,size){
   }
   // Garnish anchor: right rim edge for each glass type so garnishes sit correctly
   var gRimX,gRimY;
-  if(g==='coupe'){gRimX=cx+33*sc;gRimY=cy-44*sc;}
+  if(g==='coupe'){gRimX=cx+43*sc;gRimY=cy-44*sc;}
   else if(g==='rocks'){gRimX=cx+25*sc;gRimY=cy-24*sc;}
   else if(g==='highball'){gRimX=cx+19*sc;gRimY=cy-42*sc;}
   else if(g==='martini'){gRimX=cx+46*sc;gRimY=cy-30*sc;}
@@ -722,8 +742,8 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:5,cat:'favorites',name:'Joy',desc:'Created by @_thebarre_ in memory of his late Aunt Joy.',ing:'1.5 oz Mezcal, 3/4 oz Lime, 1/2 oz Campari, 1/2 oz Orgeat, 1 pinch Salt, 1 dash Orange Blossom Water',method:'Shake all with ice. Double strain into a chilled coupe.',tags:['House Favorite','Mezcal','Dry'],glass:'coupe',color:'#c83020',garnish:'none'},
 {id:6,cat:'favorites',name:'Cafe Ango I',desc:'Created by @verygooddrinks. Spice and intensity.',ing:'1 oz Angostura Bitters, 1 oz Licor 43, 1 oz Ancho Reyes, 2 oz Espresso',method:'Add all to a shaker with ice. Shake hard, briefly. Single strain into a coupe.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#341608',garnish:'espresso beans'},
 {id:7,cat:'favorites',name:'Cafe Ango II',desc:'Created by @verygooddrinks.',ing:'1/2 oz Angostura Bitters, 1/2 oz Licor 43, 1/2 oz Ancho Reyes, 2 oz Espresso',method:'Single strain into a coupe or Nick & Nora.',tags:['House Favorite','Espresso','Bitters'],glass:'coupe',color:'#341608',garnish:'espresso beans'},
-{id:8,cat:'favorites',name:'Trinidad Sour',desc:'Created by Giuseppe Gonzalez at Clover Club Bar, Brooklyn, 2009.',ing:'1.5 oz Angostura Bitters, 3/4 oz Lemon, 3/4 oz Orgeat, 1/2 oz Rye Whiskey',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Dry','Bitters','Whiskey'],glass:'coupe',color:'#6a1808',garnish:'none'},
-{id:9,cat:'favorites',name:'Splendid Isolation',desc:'Snack Bar, Minneapolis.',ing:'2 oz Mezcal, 1 oz Lime, 3/4 oz Hibiscus Syrup, 1/2 oz Licor 43',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal'],glass:'rocks',color:'#d11342',garnish:'lime wheel'},
+{id:8,cat:'favorites',name:'Trinidad Sour',desc:'Created by Giuseppe Gonzalez at Clover Club Bar, Brooklyn, 2009.',ing:'1.5 oz Angostura Bitters, 3/4 oz Lemon, 3/4 oz Orgeat, 1/2 oz Rye Whiskey',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Dry','Bitters','Whiskey'],glass:'coupe',color:'#c83820',garnish:'none'},
+{id:9,cat:'favorites',name:'Splendid Isolation',desc:'Snack Bar, Minneapolis.',ing:'2 oz Mezcal, 1 oz Lime, 3/4 oz Hibiscus Syrup, 1/2 oz Licor 43',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal'],glass:'rocks',color:'#8e1238',garnish:'lime wheel'},
 {id:10,cat:'favorites',name:'Monte Casino',desc:'Created by Damon Dyer, 2010, New York City.',ing:'3/4 oz American Rye Whiskey, 3/4 oz Benedictine, 3/4 oz Yellow Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Chartreuse','Whiskey'],glass:'coupe',color:'#c8a020',garnish:'lemon twist'},
 {id:11,cat:'favorites',name:'La Vie',desc:'Smoky mezcal meets dark espresso. The orgeat rounds it out; the mole bitters make it strange in the best way.',ing:'2 oz Mezcal, 3/4 oz Coffee Liqueur, 1 oz Espresso, 1/2 oz Orgeat, 2 dashes Mole Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['House Favorite','Mezcal','Espresso'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
 {id:12,cat:'favorites',name:'On Call',desc:'Drambuie and Monkey Shoulder walk into a shot of espresso. What follows is surprisingly elegant.',ing:'1 oz Drambuie, 1 oz Monkey Shoulder Whiskey, 2 oz Espresso',method:'Dry shake first, then add ice and shake again. Double strain into a coupe.',tags:['House Favorite','Espresso','Whiskey'],glass:'coupe',color:'#321808',garnish:'espresso beans'},
@@ -733,7 +753,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:16,cat:'gin',name:'Fitzgerald',desc:'Created in the early 1990s by legendary bartender Dale DeGroff at the Rainbow Room in New York City. Originally dubbed the "Gin Thing," this refreshing mixture of gin, lemon juice, simple syrup, and Angostura bitters was renamed to honor author F. Scott Fitzgerald.',ing:'1.5 oz Gin, 1 oz Lemon, 1 oz Simple Syrup, 2 dashes Angostura Bitters',method:'Shake all with ice. Double strain into a coupe.',tags:['Gin','Dry','Bitters'],glass:'coupe',color:'#e0d890',garnish:'lemon twist'},
 {id:17,cat:'favorites',name:'Wink of the Rabbit',desc:'Our namesake. Tequila and mezcal bound by chocolate and blood orange.',ing:'1.5 oz Tequila Blanco, 1/2 oz Mezcal, 1 tsp Agave Nectar, 1.5 tbsp Chocolate Syrup, 1 dash Angostura Bitters',method:'Stir all with ice. Strain into a rocks glass. Garnish with blood orange twist.',tags:['House Favorite','Tequila','Mezcal','Bitters'],glass:'rocks',color:'#581408',garnish:'orange twist'},
 {id:20,cat:'dry',name:'Slurred Words',desc:'What the Last Word sounds like after a few too many. Herbal, tropical, quietly dangerous.',ing:'1 oz Overproof Jamaican Rum, 1/2 oz Green Chartreuse, 1/2 oz Maraschino Liqueur, 1 oz Pineapple Juice, 1/2 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Chartreuse','Rum','Last Riff'],glass:'coupe',color:'#b8c040',garnish:'lime wheel'},
-{id:21,cat:'dry',name:'Trinidad Especial',desc:'Created by Valentino Bolognese, Angostura European Cocktail Competition, Paris 2008.',ing:'1 oz Angostura Bitters, 1/2 oz Pisco, 1 oz Orgeat, 2/3 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Bitters'],glass:'coupe',color:'#6a1808',garnish:'lime wheel'},
+{id:21,cat:'dry',name:'Trinidad Especial',desc:'Created by Valentino Bolognese, Angostura European Cocktail Competition, Paris 2008.',ing:'1 oz Angostura Bitters, 1/2 oz Pisco, 1 oz Orgeat, 2/3 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Bitters'],glass:'coupe',color:'#c83820',garnish:'lime wheel'},
 {id:22,cat:'dry',name:'Medicina Latina',desc:'Adapted from Marcos Tello at The Varnish, Los Angeles, 2009.',ing:'2 oz Tequila Blanco, 3/4 oz Lime, 1/3 oz Ginger Syrup, 1/3 oz Honey Syrup, 1 bar spoon Mezcal (float)',method:'Shake all except mezcal with ice. Strain into a rocks glass. Float mezcal on top.',tags:['Dry','Tequila','Mezcal'],glass:'rocks',color:'#d0c870',garnish:'lemon twist'},
 {id:23,cat:'dry',name:'French Gimlet',desc:"Giffard's Guide, January 2024.",ing:'2 oz Gin, 1.5 oz Elderflower Liqueur, 1/2 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Dry','Gin'],glass:'coupe',color:'#d8e8b0',garnish:'lime wheel'},
 {id:24,cat:'dry',name:'Hemingway Daiquiri',desc:"The Papa Doble — Hemingway's own recipe. Bracingly tart, no sweetness to hide behind.",ing:'2 oz White Rum, 3/4 oz Lime, 1/2 oz Grapefruit, 1/2 oz Maraschino, 1/4 oz Simple Syrup',method:'Shake all with ice. Double strain into a frozen coupe.',tags:['Dry','Rum'],glass:'coupe',color:'#f0b8a0',garnish:'lime wheel'},
@@ -760,7 +780,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:53,cat:'espresso',name:'Salgamos',desc:'Sherry and espresso have no business working this well together. The orgeat is the bridge.',ing:'1 oz Oloroso Sherry, 1/2 oz Puerto Rican Rum, 3/4 oz Orgeat, 1 oz Espresso',method:'Shake all with ice. Double strain into a coupe.',tags:['Espresso','Rum'],glass:'coupe',color:'#381808',garnish:'espresso beans'},
 {id:54,cat:'espresso',name:'Espresso Martini',desc:'By @notjustabartender.',ing:'1.5 oz Rum or Tequila, 1.5 oz Espresso, 3/4 oz Mr. Black, 1/4 oz Simple Syrup, 1 pinch Salt',method:'Shake all very hard with ice. Double strain into a coupe. Garnish with 3 espresso beans.',tags:['Espresso','Rum','Tequila','Liqueurs'],glass:'coupe',color:'#2e1208',garnish:'espresso beans'},
 {id:60,cat:'lastriffs',name:'Almost Famous',desc:'Overproof rum riff on the Naked & Famous.',ing:'1 oz Overproof Jamaican Rum, 3/4 oz Aperol, 3/4 oz Yellow Chartreuse, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Rum','Chartreuse'],glass:'coupe',color:'#cc6020',garnish:'lime wheel'},
-{id:61,cat:'lastriffs',name:'Last Flight',desc:'Paper Plane riff with Green Chartreuse.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Green Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Bourbon','Chartreuse'],glass:'coupe',color:'#c09820',garnish:'lemon twist'},
+{id:61,cat:'lastriffs',name:'Last Flight',desc:'Paper Plane riff with Green Chartreuse.',ing:'3/4 oz Bourbon, 3/4 oz Aperol, 3/4 oz Green Chartreuse, 3/4 oz Lemon',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Bourbon','Chartreuse'],glass:'coupe',color:'#d4640a',garnish:'lemon twist'},
 {id:62,cat:'lastriffs',name:'Not So Famous',desc:'Created by @onesipclub.',ing:'3/4 oz Mezcal, 3/4 oz Aperol, 3/4 oz Benedictine, 3/4 oz Maraschino Liqueur, 3/4 oz Lime',method:'Shake all with ice. Double strain into a coupe.',tags:['Last Riff','Mezcal'],glass:'coupe',color:'#d07030',garnish:'lime wheel'},
 {id:63,cat:'lastriffs',name:'Gringo Peligroso',desc:'Created by Lewis Caputa at Rosina Cocktail Lounge, Las Vegas.',ing:'1 oz Mezcal, 1 oz Amaro Montenegro, 3/4 oz Lime, 3/4 oz Ginger Syrup',method:'Double strain into a chilled rocks glass over ice. Garnish with candied ginger.',tags:['Last Riff','Mezcal'],glass:'rocks',color:'#ffaa00',garnish:'lemon twist'},
 {id:64,cat:'lastriffs',name:'Monte Carlos',desc:'Created by @thelittle.ghost.',ing:'2 oz Tequila, 1/2 oz Benedictine, 2 dashes Angostura Bitters',method:'Stir with ice. Strain into a rocks glass over a large cube. Express lemon peel over the top.',tags:['Last Riff','Tequila','Bitters'],glass:'rocks',color:'#8a4010',garnish:'lemon twist'},
