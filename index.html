@@ -536,6 +536,14 @@ function drawCocktail(glass,color,garnish,size){
       // Two ice cubes: back-left slightly behind, front-center dominant
       glassHTML+=iceBlock(clipId2,cx-12*sc,liqY2+th*0.30,18*sc,14*sc,-6);
       glassHTML+=iceBlock(clipId2,cx-1*sc,liqY2+th*0.12,21*sc,17*sc,4);
+      if(gn==='chili'){
+        var cX=cx+6*sc,cY=liqY2+th*0.06,cTr='rotate(-32,'+cX+','+(cY+12*sc)+')';
+        glassHTML+=
+          '<path transform="'+cTr+'" d="M'+cX+','+cY+' C'+(cX+5*sc)+','+(cY-1*sc)+' '+(cX+8*sc)+','+(cY+8*sc)+' '+(cX+5*sc)+','+(cY+22*sc)+' C'+(cX+3*sc)+','+(cY+28*sc)+' '+(cX-2*sc)+','+(cY+27*sc)+' '+(cX-4*sc)+','+(cY+21*sc)+' C'+(cX-6*sc)+','+(cY+10*sc)+' '+(cX-3*sc)+','+(cY+1*sc)+' '+cX+','+cY+' Z" fill="#c81010" opacity="0.95" stroke="rgba(80,4,4,0.28)" stroke-width="'+(0.5*sc)+'" clip-path="url(#'+clipId2+')" />'
+          +'<path transform="'+cTr+'" d="M'+(cX+1.5*sc)+','+(cY+3*sc)+' C'+(cX+5.5*sc)+','+(cY+2*sc)+' '+(cX+7*sc)+','+(cY+10*sc)+' '+(cX+4.5*sc)+','+(cY+18*sc)+'" stroke="rgba(255,110,75,0.40)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round" clip-path="url(#'+clipId2+')" />'
+          +'<path transform="'+cTr+'" d="M'+cX+','+cY+' C'+(cX-4*sc)+','+(cY-5*sc)+' '+(cX-2*sc)+','+(cY-13*sc)+' '+(cX+2*sc)+','+(cY-15*sc)+'" stroke="#2a5c0a" stroke-width="'+(2*sc)+'" fill="none" stroke-linecap="round" />'
+          +'<path transform="'+cTr+'" d="M'+(cX+2*sc)+','+(cY-15*sc)+' C'+(cX+6*sc)+','+(cY-19*sc)+' '+(cX+8*sc)+','+(cY-16*sc)+' '+(cX+5*sc)+','+(cY-12*sc)+'" stroke="#2a5c0a" stroke-width="'+(1.2*sc)+'" fill="none" stroke-linecap="round" />';
+      }
     }
     glassHTML+='<path d="'+outline+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" stroke-linejoin="round"/>';
     glassHTML+='<line x1="'+(tx+3*sc)+'" y1="'+ty+'" x2="'+(tx+tw-3*sc)+'" y2="'+ty+'" stroke="'+ink+'" stroke-width="'+(0.6*sc)+'" opacity="0.3"/>';
@@ -628,13 +636,9 @@ function drawCocktail(glass,color,garnish,size){
   else if(gn==='rose petal'){garnishHTML='<ellipse cx="'+(gRimX-4*sc)+'" cy="'+(gRimY+5*sc)+'" rx="'+(8*sc)+'" ry="'+(5.5*sc)+'" fill="rgba(185,60,80,0.42)" stroke="rgba(185,60,80,0.72)" stroke-width="'+(0.8*sc)+'" transform="rotate(-28,'+(gRimX-4*sc)+','+(gRimY+5*sc)+')"/>';}
   else if(gn==='grapefruit'){var gr2=8.5*sc,gx2=gRimX,gy2=gRimY+gr2*0.55;garnishHTML='<circle cx="'+gx2+'" cy="'+gy2+'" r="'+gr2+'" fill="rgba(210,85,55,0.32)" stroke="#cc4838" stroke-width="'+(0.9*sc)+'"/><line x1="'+(gx2-gr2)+'" y1="'+gy2+'" x2="'+(gx2+gr2)+'" y2="'+gy2+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/><line x1="'+gx2+'" y1="'+(gy2-gr2)+'" x2="'+gx2+'" y2="'+(gy2+gr2)+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/>';}
   else if(gn==='chili'){
-    var chX=gRimX,chY=gRimY+4*sc;
-    // body: curved chili shape angled diagonally off the rim
-    garnishHTML=
-      '<path d="M'+chX+','+chY+' C'+(chX+9*sc)+','+(chY-5*sc)+' '+(chX+18*sc)+','+(chY+4*sc)+' '+(chX+16*sc)+','+(chY+18*sc)+' C'+(chX+14*sc)+','+(chY+26*sc)+' '+(chX+8*sc)+','+(chY+27*sc)+' '+(chX+5*sc)+','+(chY+21*sc)+' C'+(chX+1*sc)+','+(chY+12*sc)+' '+(chX-3*sc)+','+(chY+5*sc)+' '+chX+','+chY+' Z" fill="#c81010" opacity="0.93" stroke="rgba(90,4,4,0.35)" stroke-width="'+(0.5*sc)+'"/>'
-      +'<path d="M'+(chX+3*sc)+','+(chY+2*sc)+' C'+(chX+10*sc)+','+(chY-2*sc)+' '+(chX+15*sc)+','+(chY+6*sc)+' '+(chX+13*sc)+','+(chY+14*sc)+'" stroke="rgba(255,110,80,0.38)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>'
-      +'<path d="M'+chX+','+chY+' C'+(chX-5*sc)+','+(chY-5*sc)+' '+(chX-3*sc)+','+(chY-13*sc)+' '+(chX+2*sc)+','+(chY-16*sc)+'" stroke="#2a5c0a" stroke-width="'+(2*sc)+'" fill="none" stroke-linecap="round"/>'
-      +'<path d="M'+(chX+2*sc)+','+(chY-16*sc)+' C'+(chX+5*sc)+','+(chY-20*sc)+' '+(chX+8*sc)+','+(chY-18*sc)+' '+(chX+6*sc)+','+(chY-14*sc)+'" stroke="#2a5c0a" stroke-width="'+(1.2*sc)+'" fill="none" stroke-linecap="round"/>';
+    // chili is drawn inside the liquid in the rocks glass drawing block above
+    // no rim garnish needed
+    garnishHTML='';
   }
   return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg">'+defs+bg+'<g filter="url(#sk'+uid+')" opacity="0.95">'+glassHTML+garnishHTML+'</g></svg>';
 }
