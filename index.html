@@ -627,6 +627,15 @@ function drawCocktail(glass,color,garnish,size){
   }
   else if(gn==='rose petal'){garnishHTML='<ellipse cx="'+(gRimX-4*sc)+'" cy="'+(gRimY+5*sc)+'" rx="'+(8*sc)+'" ry="'+(5.5*sc)+'" fill="rgba(185,60,80,0.42)" stroke="rgba(185,60,80,0.72)" stroke-width="'+(0.8*sc)+'" transform="rotate(-28,'+(gRimX-4*sc)+','+(gRimY+5*sc)+')"/>';}
   else if(gn==='grapefruit'){var gr2=8.5*sc,gx2=gRimX,gy2=gRimY+gr2*0.55;garnishHTML='<circle cx="'+gx2+'" cy="'+gy2+'" r="'+gr2+'" fill="rgba(210,85,55,0.32)" stroke="#cc4838" stroke-width="'+(0.9*sc)+'"/><line x1="'+(gx2-gr2)+'" y1="'+gy2+'" x2="'+(gx2+gr2)+'" y2="'+gy2+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/><line x1="'+gx2+'" y1="'+(gy2-gr2)+'" x2="'+gx2+'" y2="'+(gy2+gr2)+'" stroke="#cc4838" stroke-width="'+(0.55*sc)+'"/>';}
+  else if(gn==='chili'){
+    var chX=gRimX,chY=gRimY+4*sc;
+    // body: curved chili shape angled diagonally off the rim
+    garnishHTML=
+      '<path d="M'+chX+','+chY+' C'+(chX+9*sc)+','+(chY-5*sc)+' '+(chX+18*sc)+','+(chY+4*sc)+' '+(chX+16*sc)+','+(chY+18*sc)+' C'+(chX+14*sc)+','+(chY+26*sc)+' '+(chX+8*sc)+','+(chY+27*sc)+' '+(chX+5*sc)+','+(chY+21*sc)+' C'+(chX+1*sc)+','+(chY+12*sc)+' '+(chX-3*sc)+','+(chY+5*sc)+' '+chX+','+chY+' Z" fill="#c81010" opacity="0.93" stroke="rgba(90,4,4,0.35)" stroke-width="'+(0.5*sc)+'"/>'
+      +'<path d="M'+(chX+3*sc)+','+(chY+2*sc)+' C'+(chX+10*sc)+','+(chY-2*sc)+' '+(chX+15*sc)+','+(chY+6*sc)+' '+(chX+13*sc)+','+(chY+14*sc)+'" stroke="rgba(255,110,80,0.38)" stroke-width="'+(1.1*sc)+'" fill="none" stroke-linecap="round"/>'
+      +'<path d="M'+chX+','+chY+' C'+(chX-5*sc)+','+(chY-5*sc)+' '+(chX-3*sc)+','+(chY-13*sc)+' '+(chX+2*sc)+','+(chY-16*sc)+'" stroke="#2a5c0a" stroke-width="'+(2*sc)+'" fill="none" stroke-linecap="round"/>'
+      +'<path d="M'+(chX+2*sc)+','+(chY-16*sc)+' C'+(chX+5*sc)+','+(chY-20*sc)+' '+(chX+8*sc)+','+(chY-18*sc)+' '+(chX+6*sc)+','+(chY-14*sc)+'" stroke="#2a5c0a" stroke-width="'+(1.2*sc)+'" fill="none" stroke-linecap="round"/>';
+  }
   return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg">'+defs+bg+'<g filter="url(#sk'+uid+')" opacity="0.95">'+glassHTML+garnishHTML+'</g></svg>';
 }
 function parseIng(raw){
@@ -806,7 +815,7 @@ let cocktails=JSON.parse(localStorage.getItem('wink-v5')||'null')||[
 {id:140,cat:'liqueurs',name:'White Noise',desc:'Created by @huntandalpine. Low ABV.',ing:'1.5 oz Cocchi Americano, 1 oz Elderflower Liqueur, 2 oz Soda Water',method:'Combine in a rocks glass with ice. Top with soda. Garnish with grapefruit twist.',tags:['Liqueurs'],glass:'highball',color:'#eaeec8',garnish:'grapefruit'},
 {id:1774491306187,cat:'favorites',name:'Sonata',desc:'Clover Club cousin with pomegranate depth. Pretty looking, drinks faster than expected.',ing:'2 oz Dry Gin, 1 oz Lemon, 3/4 oz Grenadine, 1/4 oz Orgeat, 1 Hefty dash Angostura Bitters',method:'Shake all with ice. Strain. Garnish with brandied cherry.',tags:['Gin','Bitters'],glass:'coupe',color:'#ffa57d',garnish:'cherry'},
 {id:1778039814083,cat:'favorites',name:'Jed',desc:'Jedediah Ebert, a dear friend in London, UK.',ing:'2 oz Mezcal, 1 Lime, Topped with mandarin soda, Pink Himalayan salt on the rim',method:'Shake ingredients with ice, top with soda.',tags:['Mezcal'],glass:'coupe',color:'#c9a84c',garnish:'lemon twist'},
-{id:1778041719617,cat:'favorites',name:'Picante',desc:'SoHo House.',ing:'2 oz Mezcal (or Tequila), 3/4 oz Agave (or Honey), 1 oz Lime, Chili pepper (1/4 inch), 10 Coriander leaves',method:'Muddle chili in shaker. Add coriander, agave, lime, and mezcal. Shake with ice. Fine strain into a rocks glass over ice.',tags:['House Favorite','Mezcal','Tequila'],glass:'rocks',color:'#fffbb9',garnish:'orange twist'}
+{id:1778041719617,cat:'favorites',name:'Picante',desc:'SoHo House.',ing:'2 oz Mezcal (or Tequila), 3/4 oz Agave (or Honey), 1 oz Lime, Chili pepper (1/4 inch), 10 Coriander leaves',method:'Muddle chili in shaker. Add coriander, agave, lime, and mezcal. Shake with ice. Fine strain into a rocks glass over ice.',tags:['House Favorite','Mezcal','Tequila'],glass:'rocks',color:'#fffbb9',garnish:'chili'}
 ];
 function persist(){localStorage.setItem('wink-v5',JSON.stringify(cocktails));}
 function exportCocktails(){
