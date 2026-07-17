@@ -306,7 +306,7 @@ textarea{resize:vertical;min-height:70px}
         <div class="fgrp"><label>Name</label><input type="text" id="f-name" placeholder="The Wink"></div>
         <div class="fgrp"><label>Category</label>
           <select id="f-cat">
-            <option value="favorites">House Favorites</option><option value="dry">Dry</option><option value="sweet">Sweet</option>
+            <option value="">— No Category —</option><option value="favorites">House Favorites</option><option value="dry">Dry</option><option value="sweet">Sweet</option>
             <option value="chartreuse">Chartreuse</option><option value="espresso">Espresso</option><option value="lastriffs">Last Riffs</option>
             <option value="bitters">Bitters</option><option value="bourbon">Bourbon</option><option value="cognac">Cognac / Pisco</option>
             <option value="gin">Gin</option><option value="liqueurs">Liqueurs</option><option value="mezcal">Mezcal</option>
@@ -1008,7 +1008,7 @@ function showForm(id){
   editing=id;document.getElementById('cocktail-form').classList.add('open');
   document.getElementById('f-title-lbl').textContent=id?'Edit Cocktail':'New Cocktail';
   if(id){var c=cocktails.find(function(x){return x.id===id;});if(c){document.getElementById('edit-id').value=c.id;document.getElementById('f-name').value=c.name;document.getElementById('f-cat').value=c.cat;document.getElementById('f-desc').value=c.desc||'';document.getElementById('f-ing').value=typeof c.ing==='string'?c.ing:(c.ing||[]).map(function(i){return i.amt+' '+i.item;}).join('\n');document.getElementById('f-method').value=c.method||'';document.getElementById('f-tags').value=(c.tags||[]).join(', ');document.getElementById('f-glass').value=c.glass||'coupe';document.getElementById('f-color').value=c.color||'#c9a84c';document.getElementById('f-garnish').value=c.garnish||'none';}}
-  else{document.getElementById('edit-id').value='';['f-name','f-desc','f-ing','f-method','f-tags'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('f-cat').value='favorites';document.getElementById('f-glass').value='coupe';document.getElementById('f-color').value='#c9a84c';document.getElementById('f-garnish').value='none';}
+  else{document.getElementById('edit-id').value='';['f-name','f-desc','f-ing','f-method','f-tags'].forEach(function(i){document.getElementById(i).value='';});document.getElementById('f-cat').value='';document.getElementById('f-glass').value='coupe';document.getElementById('f-color').value='#c9a84c';document.getElementById('f-garnish').value='none';}
   document.getElementById('cocktail-form').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function hideForm(){document.getElementById('cocktail-form').classList.remove('open');editing=null;}
